@@ -2,18 +2,14 @@ import WeekLogTable from '../components/WeekLogTable';
 import PageLayout from '../components/PageLayout';
 import { Paper, Typography, LinearProgress } from '@mui/material';
 import { useLawnCastStore } from '../models/store';
-import { format, startOfWeek, addDays } from 'date-fns';
+import { getWeekDates } from '../utils/dateUtils';
 
 export default function LogPage() {
 	const entries = useLawnCastStore(s => s.entries);
 	const settings = useLawnCastStore(s => s.settings);
 
 	// Calculate week dates using date-fns for consistent Sunday-Saturday week
-	const weekDates = Array.from({ length: 7 }, (_, i) => {
-		const weekStart = startOfWeek(new Date(), { weekStartsOn: 0 }); // 0 = Sunday
-		const currentDay = addDays(weekStart, i);
-		return format(currentDay, 'yyyy-MM-dd');
-	});
+	const weekDates = getWeekDates();
 
 	const totalMinutes = weekDates.reduce(
 		(sum, date) => sum + (entries[date]?.minutes || 0),

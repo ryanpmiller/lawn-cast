@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
 	calculateDecision,
 	getWeeklyTarget,
-	minutesToInches,
 } from '../models/logic';
 
 describe('Business Logic', () => {
@@ -13,10 +12,7 @@ describe('Business Logic', () => {
 		expect(getWeeklyTarget('transition', 'partial')).toBe(0.65);
 	});
 
-	it('minutesToInches converts correctly', () => {
-		expect(minutesToInches(60, 1)).toBeCloseTo(1.0, 5);
-		expect(minutesToInches(30, 0.5)).toBeCloseTo(0.25, 5);
-	});
+
 
 	it('calculateDecision: exact target (no need to water)', () => {
 		const res = calculateDecision({

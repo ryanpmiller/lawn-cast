@@ -9,10 +9,11 @@ import {
 	InputAdornment,
 	useTheme,
 } from '@mui/material';
-import { parseISO } from 'date-fns';
+
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import AddIcon from '@mui/icons-material/Add';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import { isToday, formatDayName } from '../utils/dateUtils';
 
 export default function WeekLogTable({ weekDates }: { weekDates: string[] }) {
 	const entries = useLawnCastStore(s => s.entries);
@@ -53,7 +54,7 @@ export default function WeekLogTable({ weekDates }: { weekDates: string[] }) {
 			{weekDates.map((date, idx) => {
 				const entry = entries[date];
 				const isEditing = editDate === date;
-				const isToday = new Date().toISOString().slice(0, 10) === date;
+				const isTodayDate = isToday(date);
 				return (
 					<Box
 						key={date}
@@ -62,7 +63,7 @@ export default function WeekLogTable({ weekDates }: { weekDates: string[] }) {
 							alignItems: 'center',
 							px: 2,
 							py: 1.5,
-							bgcolor: isToday
+							bgcolor: isTodayDate
 								? 'rgba(0, 256, 0, 0.05)'
 								: 'background.paper',
 							borderRadius: 0,
@@ -95,9 +96,7 @@ export default function WeekLogTable({ weekDates }: { weekDates: string[] }) {
 								color="text.primary"
 								sx={{ minWidth: 90 }}
 							>
-								{parseISO(date).toLocaleDateString(undefined, {
-									weekday: 'long',
-								})}
+								{formatDayName(date)}
 							</Typography>
 							<Box sx={{ flex: 1, textAlign: 'right', pr: 2 }}>
 								{isEditing ? (

@@ -47,10 +47,4 @@ export function calculateDecision({
 	return { decision, totalProjected, weeklyTarget, progress };
 }
 
-export function minutesToInches(
-	minutes: number,
-	sprinklerRate: number
-): number {
-	// sprinklerRate is in inches/hour
-	return (minutes / 60) * sprinklerRate;
-}
+

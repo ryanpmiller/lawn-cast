@@ -7,26 +7,17 @@ import {
 	Button,
 	MenuItem,
 } from '@mui/material';
-import { useState } from 'react';
 import { useLawnCastStore } from '../models/store';
+import {
+	GRASS_SPECIES_OPTIONS,
+	SUN_EXPOSURE_OPTIONS,
+} from '../constants/options';
+import { useSuccessAlert } from '../hooks/useSuccessAlert';
 
 export default function LawnSettingsSection() {
 	const settings = useLawnCastStore(s => s.settings);
 	const update = useLawnCastStore(s => s.update);
-	const [success, setSuccess] = useState(false);
-
-	const speciesOptions = [
-		{ value: 'kentucky_bluegrass', label: 'Kentucky Bluegrass' },
-		{ value: 'tall_fescue', label: 'Tall Fescue' },
-		{ value: 'bermuda', label: 'Bermuda' },
-		{ value: 'zoysia', label: 'Zoysia' },
-		{ value: 'st_augustine', label: 'St. Augustine' },
-	];
-	const sunOptions = [
-		{ value: 'full', label: 'Full Sun (6+ hrs)' },
-		{ value: 'partial', label: 'Partial Shade (3-6 hrs)' },
-		{ value: 'shade', label: 'Full Shade (<3 hrs)' },
-	];
+	const { success, showSuccess } = useSuccessAlert();
 
 	const handleSpeciesChange = (value: string) => {
 		update({ grassSpecies: value as typeof settings.grassSpecies });
@@ -36,8 +27,7 @@ export default function LawnSettingsSection() {
 	};
 
 	const handleSave = () => {
-		setSuccess(true);
-		setTimeout(() => setSuccess(false), 2000);
+		showSuccess();
 	};
 
 	return (
@@ -61,7 +51,7 @@ export default function LawnSettingsSection() {
 					}}
 					fullWidth={true}
 				>
-					{speciesOptions.map(opt => (
+					{GRASS_SPECIES_OPTIONS.map(opt => (
 						<MenuItem key={opt.value} value={opt.value}>
 							{opt.label}
 						</MenuItem>
@@ -78,7 +68,7 @@ export default function LawnSettingsSection() {
 					}}
 					fullWidth={true}
 				>
-					{sunOptions.map(opt => (
+					{SUN_EXPOSURE_OPTIONS.map(opt => (
 						<MenuItem key={opt.value} value={opt.value}>
 							{opt.label}
 						</MenuItem>

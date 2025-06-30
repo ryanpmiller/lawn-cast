@@ -4,7 +4,6 @@ import { calculateDecision } from '../models/logic';
 import type { CalculateDecisionResult } from '../models/logic';
 import {
 	Skeleton,
-	Paper,
 	Stack,
 	Box,
 	Table,
@@ -19,10 +18,12 @@ import DecisionCard from '../components/DecisionCard';
 import StackedProgressBar from '../components/StackedProgressBar';
 import ExplanationSection from '../components/ExplanationSection';
 import PageLayout from '../components/PageLayout';
+import { StyledPaper } from '../components/ui/StyledPaper';
 import { getPrecip } from '../api/nws';
 import { getObservedPrecip } from '../api/observedPrecip';
 import { format, startOfWeek, endOfWeek, isBefore, parseISO } from 'date-fns';
 import type { WeatherCache } from '../models/types';
+import { calculateWaterAmounts } from '../utils/calculations';
 
 // Weather cache helpers (moved from noaa.ts)
 const ONE_HOUR_MS = 60 * 60 * 1000;
@@ -134,35 +135,15 @@ export default function HomePage() {
 		// Only run when lat/lon/zip change
 	}, [settings.lat, settings.lon, settings.zip]);
 
-	// Helper to sum forecast for the week using NWS forecastInches
-	function sumForecastForWeek(
-		forecastInches: Record<string, { amount: number; pop: number }>
-	) {
-		let total = 0;
-		for (const day in forecastInches) {
-			const { pop, amount } = forecastInches[day];
-			if (pop >= 0.6) total += amount;
-		}
-		return total;
-	}
-
 	useEffect(() => {
 		// Simulate async data prep
 		setTimeout(() => {
-			const rainPast = cache?.observedInches
-				? Object.values(cache.observedInches).reduce(
-						(a, b) => a + b.amount,
-						0
-					)
-				: 0;
-			const rainForecast = cache?.forecastInches
-				? sumForecastForWeek(cache.forecastInches)
-				: 0;
-			const loggedWater = Object.values(entries || {}).reduce(
-				(sum, entry) =>
-					sum + (settings.sprinklerRateInPerHr * entry.minutes) / 60,
-				0
-			);
+			const { rainPast, rainForecast, loggedWater } =
+				calculateWaterAmounts(
+					cache,
+					entries,
+					settings.sprinklerRateInPerHr
+				);
 			const zone = settings.zone || 'cool';
 			const sunExposure = settings.sunExposure || 'full';
 			const result = calculateDecision({
@@ -180,19 +161,7 @@ export default function HomePage() {
 
 	return (
 		<PageLayout title="Home" alignItems="center" titleAlign="center">
-			<Paper
-				elevation={0}
-				sx={{
-					borderRadius: 3,
-					p: 0,
-					overflow: 'hidden',
-					width: '100%',
-					maxWidth: { xs: '100%', sm: 480 },
-					border: '1px solid',
-					borderColor: 'divider',
-					boxShadow: 'none',
-				}}
-			>
+			<StyledPaper variant="card">
 				{loading ? (
 					<Skeleton
 						variant="rectangular"
@@ -208,22 +177,8 @@ export default function HomePage() {
 						/>
 					)
 				)}
-			</Paper>
-			<Paper
-				elevation={0}
-				sx={{
-					borderRadius: 2,
-					p: 2,
-					display: 'flex',
-					alignItems: 'center',
-					minHeight: 48,
-					width: '100%',
-					maxWidth: { xs: '100%', sm: 480 },
-					border: '1px solid',
-					borderColor: 'divider',
-					boxShadow: 'none',
-				}}
-			>
+			</StyledPaper>
+			<StyledPaper variant="progress">
 				{loading ? (
 					<Skeleton
 						variant="rounded"
@@ -234,44 +189,17 @@ export default function HomePage() {
 				) : (
 					decision && (
 						<StackedProgressBar
-							rainPast={
-								cache?.observedInches
-									? Object.values(
-											cache.observedInches
-										).reduce((a, b) => a + b.amount, 0)
-									: 0
-							}
-							rainForecast={
-								cache?.forecastInches
-									? sumForecastForWeek(cache.forecastInches)
-									: 0
-							}
-							loggedWater={Object.values(entries || {}).reduce(
-								(sum, entry) =>
-									sum +
-									(settings.sprinklerRateInPerHr *
-										entry.minutes) /
-										60,
-								0
+							{...calculateWaterAmounts(
+								cache,
+								entries,
+								settings.sprinklerRateInPerHr
 							)}
 							weeklyTarget={decision.weeklyTarget}
 						/>
 					)
 				)}
-			</Paper>
-			<Paper
-				elevation={0}
-				sx={{
-					borderRadius: 2,
-					p: 2,
-					minHeight: 100,
-					width: '100%',
-					maxWidth: { xs: '100%', sm: 480 },
-					border: '1px solid',
-					borderColor: 'divider',
-					boxShadow: 'none',
-				}}
-			>
+			</StyledPaper>
+			<StyledPaper variant="section">
 				{loading ? (
 					<Stack spacing={1}>
 						<Skeleton width="60%" height={24} animation="wave" />
@@ -283,29 +211,10 @@ export default function HomePage() {
 						<>
 							<ExplanationSection
 								decision={decision}
-								rainPast={
-									cache?.observedInches
-										? Object.values(
-												cache.observedInches
-											).reduce((a, b) => a + b.amount, 0)
-										: 0
-								}
-								rainForecast={
-									cache?.forecastInches
-										? sumForecastForWeek(
-												cache.forecastInches
-											)
-										: 0
-								}
-								loggedWater={Object.values(
-									entries || {}
-								).reduce(
-									(sum, entry) =>
-										sum +
-										(settings.sprinklerRateInPerHr *
-											entry.minutes) /
-											60,
-									0
+								{...calculateWaterAmounts(
+									cache,
+									entries,
+									settings.sprinklerRateInPerHr
 								)}
 							/>
 							{cache?.forecastInches &&
@@ -399,7 +308,7 @@ export default function HomePage() {
 						</>
 					)
 				)}
-			</Paper>
+			</StyledPaper>
 		</PageLayout>
 	);
 }

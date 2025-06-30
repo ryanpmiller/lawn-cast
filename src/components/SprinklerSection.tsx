@@ -1,12 +1,13 @@
 import { Box, Typography, TextField, Alert, Button } from '@mui/material';
 import { useState } from 'react';
 import { useLawnCastStore } from '../models/store';
+import { useSuccessAlert } from '../hooks/useSuccessAlert';
 
 export default function SprinklerSection() {
 	const settings = useLawnCastStore(s => s.settings);
 	const update = useLawnCastStore(s => s.update);
 	const [rateError, setRateError] = useState('');
-	const [success, setSuccess] = useState(false);
+	const { success, showSuccess } = useSuccessAlert();
 
 	const handleRateChange = (value: number) => {
 		update({ sprinklerRateInPerHr: value });
@@ -22,8 +23,7 @@ export default function SprinklerSection() {
 			return;
 		}
 		setRateError('');
-		setSuccess(true);
-		setTimeout(() => setSuccess(false), 2000);
+		showSuccess();
 	};
 
 	return (
