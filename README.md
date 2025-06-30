@@ -1,1 +1,3 @@
-# lawn-cast
+# LawnCast
+
+MIT License. See LICENSE file.
