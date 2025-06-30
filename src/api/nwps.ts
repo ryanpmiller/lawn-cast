@@ -60,7 +60,9 @@ export async function fetchNwpsPixel(
 				number,
 				number,
 			];
-			const raster = await image.readRasters({ window }) as { [key: number]: Float32Array };
+			const raster = (await image.readRasters({ window })) as {
+				[key: number]: Float32Array;
+			};
 			const valueInches = raster[0][0];
 
 			// Check for nodata values (e.g., -9999)

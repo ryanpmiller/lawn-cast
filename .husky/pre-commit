@@ -1,8 +1,20 @@
-# Run linting
-npm run lint
+#!/bin/sh
+
+# Exit on any command failure
+set -e
+
+echo "Running pre-commit checks..."
 
 # Run formatting
+echo "🎨 Checking code formatting..."
 npm run format
 
+# Run linting
+echo "🔍 Running linter..."
+npm run lint
+
 # Run tests
+echo "🧪 Running tests..."
 npm run test
+
+echo "✅ All pre-commit checks passed!"

@@ -89,11 +89,21 @@ export async function getPrecip(
 
 		// Step 3: Process gridpoint data into daily aggregations
 		const result: Record<string, { amount: number; pop: number }> = {};
-		const dailyData: Record<string, { amounts: number[]; pops: number[]; precipTimes: string[]; popTimes: string[] }> = {};
+		const dailyData: Record<
+			string,
+			{
+				amounts: number[];
+				pops: number[];
+				precipTimes: string[];
+				popTimes: string[];
+			}
+		> = {};
 
 		// Process precipitation data
-		const precipValues = gridData.properties.quantitativePrecipitation?.values || [];
-		const popValues = gridData.properties.probabilityOfPrecipitation?.values || [];
+		const precipValues =
+			gridData.properties.quantitativePrecipitation?.values || [];
+		const popValues =
+			gridData.properties.probabilityOfPrecipitation?.values || [];
 
 		// Group precipitation data by date
 		for (const precipData of precipValues) {
@@ -104,7 +114,12 @@ export async function getPrecip(
 			const date = new Date(timeStart).toISOString().slice(0, 10);
 
 			if (!dailyData[date]) {
-				dailyData[date] = { amounts: [], pops: [], precipTimes: [], popTimes: [] };
+				dailyData[date] = {
+					amounts: [],
+					pops: [],
+					precipTimes: [],
+					popTimes: [],
+				};
 			}
 
 			// Extract precipitation amount (NWS gridpoint provides in mm, convert to inches)
@@ -123,7 +138,12 @@ export async function getPrecip(
 			const date = new Date(timeStart).toISOString().slice(0, 10);
 
 			if (!dailyData[date]) {
-				dailyData[date] = { amounts: [], pops: [], precipTimes: [], popTimes: [] };
+				dailyData[date] = {
+					amounts: [],
+					pops: [],
+					precipTimes: [],
+					popTimes: [],
+				};
 			}
 
 			dailyData[date].pops.push(popData.value / 100); // Convert percentage to 0-1
@@ -133,7 +153,10 @@ export async function getPrecip(
 		// Aggregate daily data with improved PoP matching
 		for (const [date, data] of Object.entries(dailyData)) {
 			// Sum all precipitation amounts for the day
-			const totalAmount = data.amounts.reduce((sum, amount) => sum + amount, 0);
+			const totalAmount = data.amounts.reduce(
+				(sum, amount) => sum + amount,
+				0
+			);
 
 			// Calculate PoP more intelligently
 			let finalPop = 0;
@@ -145,16 +168,22 @@ export async function getPrecip(
 
 					for (const precipTime of data.precipTimes) {
 						for (let i = 0; i < data.popTimes.length; i++) {
-							if (timeIntervalsOverlap(precipTime, data.popTimes[i])) {
+							if (
+								timeIntervalsOverlap(
+									precipTime,
+									data.popTimes[i]
+								)
+							) {
 								relevantPops.push(data.pops[i]);
 							}
 						}
 					}
 
 					// Use max of relevant PoPs, or max of all PoPs if no overlap found
-					finalPop = relevantPops.length > 0
-						? Math.max(...relevantPops)
-						: Math.max(...data.pops);
+					finalPop =
+						relevantPops.length > 0
+							? Math.max(...relevantPops)
+							: Math.max(...data.pops);
 				} else {
 					// If no precipitation, use max PoP for the day
 					finalPop = Math.max(...data.pops);

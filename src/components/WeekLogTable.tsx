@@ -62,7 +62,9 @@ export default function WeekLogTable({ weekDates }: { weekDates: string[] }) {
 							alignItems: 'center',
 							px: 2,
 							py: 1.5,
-							bgcolor: isToday ? 'rgba(0, 256, 0, 0.05)' : 'background.paper',
+							bgcolor: isToday
+								? 'rgba(0, 256, 0, 0.05)'
+								: 'background.paper',
 							borderRadius: 0,
 							position: 'relative',
 						}}
