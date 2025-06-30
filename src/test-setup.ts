@@ -12,10 +12,12 @@ console.error = (...args: unknown[]) => {
 		'The current testing environment is not configured to support act(...)',
 		'An update to',
 		'inside a test was not wrapped in act(...)',
-		'Warning: An update to'
+		'Warning: An update to',
 	];
 
-	const shouldSuppress = actWarnings.some(warning => message.includes(warning));
+	const shouldSuppress = actWarnings.some(warning =>
+		message.includes(warning)
+	);
 
 	if (shouldSuppress) {
 		return;
