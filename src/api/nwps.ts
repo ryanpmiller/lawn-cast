@@ -60,9 +60,7 @@ export async function fetchNwpsPixel(
 				number,
 				number,
 			];
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
-			const raster: any = await image.readRasters({ window });
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			const raster = await image.readRasters({ window }) as { [key: number]: Float32Array };
 			const valueInches = raster[0][0];
 
 			// Check for nodata values (e.g., -9999)
