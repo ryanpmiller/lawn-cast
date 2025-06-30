@@ -18,8 +18,10 @@ describe('SettingsPage form/state sync', () => {
 	it('updates ZIP and reflects in store', async () => {
 		render(<SettingsPage />);
 		const input = screen.getByLabelText(/update zip code/i);
-		fireEvent.change(input, { target: { value: '90210' } });
-		fireEvent.blur(input);
+		await act(async () => {
+			fireEvent.change(input, { target: { value: '90210' } });
+			fireEvent.blur(input);
+		});
 		await waitFor(() =>
 			expect(useLawnCastStore.getState().settings.zip).toBe('90210')
 		);
@@ -45,19 +47,23 @@ describe('SettingsPage form/state sync', () => {
 		expect(useLawnCastStore.getState().settings.sunExposure).toBe('shade');
 	});
 
-	it('updates sprinkler rate', () => {
+	it('updates sprinkler rate', async () => {
 		render(<SettingsPage />);
 		const input = screen.getByLabelText(/sprinkler rate/i);
-		fireEvent.change(input, { target: { value: '1.2' } });
+		await act(async () => {
+			fireEvent.change(input, { target: { value: '1.2' } });
+		});
 		expect(useLawnCastStore.getState().settings.sprinklerRateInPerHr).toBe(
 			1.2
 		);
 	});
 
-	it('updates theme', () => {
+	it('updates theme', async () => {
 		render(<SettingsPage />);
 		const darkBtn = screen.getByRole('button', { name: /dark/i });
-		fireEvent.click(darkBtn);
+		await act(async () => {
+			fireEvent.click(darkBtn);
+		});
 		expect(useLawnCastStore.getState().settings.theme).toBe('dark');
 	});
 
@@ -80,13 +86,25 @@ describe('SettingsPage form/state sync', () => {
 	it('clears all data in DangerZone', async () => {
 		render(<SettingsPage />);
 		// Set some state
-		useLawnCastStore.getState().update({ zip: '99999' });
+		await act(async () => {
+			useLawnCastStore.getState().update({ zip: '99999' });
+		});
+
 		const btn = screen.getByRole('button', { name: /clear all data/i });
-		fireEvent.click(btn);
+		await act(async () => {
+			fireEvent.click(btn);
+		});
+
 		const confirm = await screen.findByRole('button', {
 			name: /clear all data/i,
 		});
-		fireEvent.click(confirm);
+
+		await act(async () => {
+			fireEvent.click(confirm);
+			// Allow time for all component updates to complete
+			await new Promise(resolve => setTimeout(resolve, 0));
+		});
+
 		await waitFor(() =>
 			expect(useLawnCastStore.getState().settings.zip).toBe('')
 		);

@@ -46,5 +46,3 @@ export function calculateDecision({
 	const progress = Math.min(totalProjected / weeklyTarget, 1);
 	return { decision, totalProjected, weeklyTarget, progress };
 }
-
-

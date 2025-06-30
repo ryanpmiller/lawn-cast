@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-	calculateDecision,
-	getWeeklyTarget,
-} from '../models/logic';
+import { calculateDecision, getWeeklyTarget } from '../models/logic';
 
 describe('Business Logic', () => {
 	it('getWeeklyTarget returns correct values', () => {
@@ -11,8 +8,6 @@ describe('Business Logic', () => {
 		expect(getWeeklyTarget('warm', 'shade')).toBe(0.4);
 		expect(getWeeklyTarget('transition', 'partial')).toBe(0.65);
 	});
-
-
 
 	it('calculateDecision: exact target (no need to water)', () => {
 		const res = calculateDecision({
