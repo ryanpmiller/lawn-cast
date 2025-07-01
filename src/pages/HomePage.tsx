@@ -21,9 +21,10 @@ import PageLayout from '../components/PageLayout';
 import { StyledPaper } from '../components/ui/StyledPaper';
 import { getPrecip } from '../api/nws';
 import { getObservedPrecip } from '../api/observedPrecip';
-import { format, startOfWeek, endOfWeek, isBefore, parseISO } from 'date-fns';
+import { format, startOfWeek, endOfWeek, isBefore } from 'date-fns';
 import type { WeatherCache } from '../models/types';
 import { calculateWaterAmounts } from '../utils/calculations';
+import { formatDayName } from '../utils/dateUtils';
 
 // Weather cache helpers (moved from noaa.ts)
 const ONE_HOUR_MS = 60 * 60 * 1000;
@@ -269,11 +270,8 @@ export default function HomePage() {
 																}
 															>
 																<TableCell>
-																	{format(
-																		parseISO(
-																			date
-																		),
-																		'EEEE'
+																	{formatDayName(
+																		date
 																	)}
 																</TableCell>
 																<TableCell align="right">
