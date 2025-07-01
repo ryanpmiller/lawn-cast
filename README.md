@@ -65,7 +65,7 @@ See [Testing Workflow Documentation](docs/testing-workflow.md) for detailed info
 
 ### Troubleshooting
 
-**Formatting check fails**: Run `npm run format` to auto-fix, then commit again
+**Auto-formatting enabled**: Precommit automatically formats and stages changes
 **E2E tests timeout**: Ensure ports 3001, 5173-5175 are available
 **Need to bypass hooks**: Use `--no-verify` flag (sparingly)
 

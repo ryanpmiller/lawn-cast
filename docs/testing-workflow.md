@@ -20,10 +20,12 @@ The project uses a **tiered testing approach** to ensure code quality while main
 
 **Checks performed**:
 
-- ✅ Code formatting with Prettier (`npm run format:check`)
+- ✅ Auto-format code with Prettier (`npm run format`)
+- ✅ Stage formatting changes (`git add .`)
 - ✅ ESLint code quality checks (`npm run lint`)
 - ✅ Unit tests (`npm run test`)
 
+**Benefits**: No need to manually run `npm run format` - it's done automatically!
 **Escape hatch**: Use `git commit --no-verify` to bypass if needed
 
 ### Pre-push Hook (`.husky/pre-push`)
