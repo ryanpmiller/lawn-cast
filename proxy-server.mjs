@@ -83,7 +83,7 @@ app.use('/api/noaa-precip', async (req, res) => {
 });
 
 // Catch-all for undefined routes
-app.use('*', (req, res) => {
+app.use('/*splat', (req, res) => {
 	res.status(404).json({
 		error: 'Not Found',
 		message:

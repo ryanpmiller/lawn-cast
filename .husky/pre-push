@@ -3,8 +3,15 @@
 # Exit on any command failure
 set -e
 
-echo "🧪 Running E2E tests before push..."
-echo "⏱️  This may take ~15 seconds..."
+echo "🧪 Running tests with coverage before push..."
+echo "⏱️  This may take ~30 seconds..."
+
+# Run unit tests with coverage first
+echo "📊 Running unit tests with coverage..."
+npm run test:coverage
+
+echo ""
+echo "🎭 Starting E2E tests..."
 
 # Check if proxy server is already running
 if ! curl -s http://localhost:3001/health > /dev/null 2>&1; then

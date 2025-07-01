@@ -145,4 +145,84 @@ describe('NWS API Integration', () => {
 			pop: 0,
 		});
 	});
+
+	it('should handle malformed point response', async () => {
+		const malformedResponse = {
+			properties: {
+				// Missing required fields
+			},
+		};
+
+		vi.mocked(fetcher.fetchJson).mockResolvedValue(malformedResponse);
+
+		const result = await getPrecip(
+			39.0458,
+			-76.6413,
+			'2025-01-01',
+			'2025-01-07'
+		);
+
+		expect(result).toEqual({});
+	});
+
+	it('should handle malformed grid response', async () => {
+		const mockPointResponse = {
+			properties: {
+				gridId: 'LWX',
+				gridX: 97,
+				gridY: 71,
+				forecastGridData:
+					'https://api.weather.gov/gridpoints/LWX/97,71',
+			},
+		};
+
+		const malformedGridResponse = {
+			properties: {
+				// Missing precipitation data
+			},
+		};
+
+		vi.mocked(fetcher.fetchJson)
+			.mockResolvedValueOnce(mockPointResponse)
+			.mockResolvedValueOnce(malformedGridResponse);
+
+		const result = await getPrecip(
+			39.0458,
+			-76.6413,
+			'2025-01-01',
+			'2025-01-07'
+		);
+
+		expect(result).toEqual({});
+	});
+
+	it('should handle timeout errors', async () => {
+		vi.mocked(fetcher.fetchJson).mockRejectedValue(
+			new Error('Request timed out')
+		);
+
+		const result = await getPrecip(
+			39.0458,
+			-76.6413,
+			'2025-01-01',
+			'2025-01-07'
+		);
+
+		expect(result).toEqual({});
+	});
+
+	it('should handle HTTP 429 rate limiting', async () => {
+		vi.mocked(fetcher.fetchJson).mockRejectedValue(
+			new Error('HTTP 429: Rate limit exceeded')
+		);
+
+		const result = await getPrecip(
+			39.0458,
+			-76.6413,
+			'2025-01-01',
+			'2025-01-07'
+		);
+
+		expect(result).toEqual({});
+	});
 });
