@@ -1,4 +1,4 @@
-import { format, startOfWeek, addDays } from 'date-fns';
+import { format, startOfWeek, addDays, parseISO } from 'date-fns';
 
 /**
  * Get the current date as a formatted string
@@ -36,5 +36,5 @@ export function isToday(dateString: string): boolean {
  * Format a date for display (e.g., "Monday", "Tuesday")
  */
 export function formatDayName(dateString: string): string {
-	return format(new Date(dateString), 'EEEE');
+	return format(parseISO(dateString), 'EEEE');
 }
