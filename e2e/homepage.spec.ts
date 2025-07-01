@@ -121,8 +121,8 @@ test.describe('HomePage', () => {
 		});
 		await page.reload();
 
-		// Wait for page to load before trying to navigate
-		await page.waitForLoadState('networkidle');
+		// Wait for bottom navigation to be visible before trying to navigate
+		await expect(page.locator('.MuiBottomNavigation-root')).toBeVisible();
 
 		// Look for bottom navigation and click the Log button using aria-label
 		await page.getByRole('button', { name: /log/i }).click();
@@ -158,8 +158,8 @@ test.describe('HomePage', () => {
 		});
 		await page.reload();
 
-		// Wait for page to load before trying to navigate
-		await page.waitForLoadState('networkidle');
+		// Wait for bottom navigation to be visible before trying to navigate
+		await expect(page.locator('.MuiBottomNavigation-root')).toBeVisible();
 
 		// Look for bottom navigation and click the Settings button using aria-label
 		await page.getByRole('button', { name: /settings/i }).click();
