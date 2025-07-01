@@ -64,7 +64,10 @@ export async function getObservedPrecip(
 			);
 			return mapped;
 		} catch (ghcndErr) {
-			console.warn('Both NWPS and GHCND APIs failed, returning zero values for observed precipitation', ghcndErr);
+			console.warn(
+				'Both NWPS and GHCND APIs failed, returning zero values for observed precipitation',
+				ghcndErr
+			);
 
 			// Both APIs failed, return zero values for all dates
 			const mapped: ObservedMap = {};

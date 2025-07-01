@@ -43,7 +43,9 @@ test.describe('HomePage', () => {
 		await page.reload();
 
 		// Wait for content to load and check for actual text content
-		await expect(page.getByText(/water today/i)).toBeVisible({ timeout: 10000 });
+		await expect(page.getByText(/water today/i)).toBeVisible({
+			timeout: 10000,
+		});
 		await expect(page.getByText(/progress/i)).toBeVisible();
 	});
 
@@ -117,7 +119,9 @@ test.describe('HomePage', () => {
 		await page.reload();
 
 		// Location info might not be displayed in HomePage, check for successful content load instead
-		await expect(page.getByText(/water today/i)).toBeVisible({ timeout: 10000 });
+		await expect(page.getByText(/water today/i)).toBeVisible({
+			timeout: 10000,
+		});
 	});
 
 	test('handles loading states gracefully', async ({ page }) => {

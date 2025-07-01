@@ -34,7 +34,10 @@ test.describe('Log Tab CRUD', () => {
 
 	test("can edit a day's minutes", async ({ page }) => {
 		// Click the add/edit button for the first day
-		await page.getByLabel(/add\/edit minutes/i).first().click();
+		await page
+			.getByLabel(/add\/edit minutes/i)
+			.first()
+			.click();
 		const input = page.getByRole('spinbutton');
 		await input.fill('42');
 		// Blur the input to save (no explicit save button)
@@ -43,7 +46,10 @@ test.describe('Log Tab CRUD', () => {
 	});
 
 	test('shows validation for out-of-range input', async ({ page }) => {
-		await page.getByLabel(/add\/edit minutes/i).nth(1).click();
+		await page
+			.getByLabel(/add\/edit minutes/i)
+			.nth(1)
+			.click();
 		const input = page.getByRole('spinbutton');
 		await input.fill('999');
 		await input.blur();

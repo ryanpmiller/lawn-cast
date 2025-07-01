@@ -5,9 +5,9 @@ set -e
 
 echo "Running pre-commit checks..."
 
-# Run formatting
+# Check formatting (without auto-fixing)
 echo "🎨 Checking code formatting..."
-npm run format
+npm run format:check
 
 # Run linting
 echo "🔍 Running linter..."

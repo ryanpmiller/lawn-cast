@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('BottomNavigation', () => {
-		test('navigates between Home, Log, and Settings', async ({ page }) => {
+	test('navigates between Home, Log, and Settings', async ({ page }) => {
 		await page.goto('/');
 
 		// Set up location data so navigation is available
@@ -30,7 +30,9 @@ test.describe('BottomNavigation', () => {
 
 		// Check we're on home page by URL and content
 		await expect(page).toHaveURL('/');
-		await expect(page.getByText(/water|progress/i)).toBeVisible({ timeout: 10000 });
+		await expect(page.getByText(/water|progress/i)).toBeVisible({
+			timeout: 10000,
+		});
 
 		// Try direct navigation since navigation elements might not be accessible
 		await page.goto('/log');
@@ -39,7 +41,9 @@ test.describe('BottomNavigation', () => {
 
 		await page.goto('/settings');
 		await expect(page).toHaveURL('/settings');
-		await expect(page.getByText(/lawn settings|sprinkler settings/i)).toBeVisible();
+		await expect(
+			page.getByText(/lawn settings|sprinkler settings/i)
+		).toBeVisible();
 
 		await page.goto('/');
 		await expect(page).toHaveURL('/');

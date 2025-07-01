@@ -49,12 +49,18 @@ test.describe('Data Persistence', () => {
 		await expect(page.getByText(/water log/i)).toBeVisible();
 
 		// Add some watering entries by clicking edit buttons
-		await page.getByLabel(/add\/edit minutes/i).first().click();
+		await page
+			.getByLabel(/add\/edit minutes/i)
+			.first()
+			.click();
 		let input = page.getByRole('spinbutton');
 		await input.fill('30');
 		await input.blur();
 
-		await page.getByLabel(/add\/edit minutes/i).nth(1).click();
+		await page
+			.getByLabel(/add\/edit minutes/i)
+			.nth(1)
+			.click();
 		input = page.getByRole('spinbutton');
 		await input.fill('45');
 		await input.blur();
