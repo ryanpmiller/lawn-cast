@@ -30,7 +30,8 @@ export const Card: Story = {
 					Card Variant
 				</Typography>
 				<Typography variant="body2">
-					This is the card variant used for main content areas with elevated appearance.
+					This is the card variant used for main content areas with
+					elevated appearance.
 				</Typography>
 			</Box>
 		),
@@ -46,7 +47,8 @@ export const Progress: Story = {
 					Progress Variant
 				</Typography>
 				<Typography variant="body2">
-					This variant is used for progress indicators and status displays.
+					This variant is used for progress indicators and status
+					displays.
 				</Typography>
 			</Box>
 		),
@@ -62,7 +64,8 @@ export const Section: Story = {
 					Section Variant
 				</Typography>
 				<Typography variant="body2">
-					This variant is used for section containers and grouping related content.
+					This variant is used for section containers and grouping
+					related content.
 				</Typography>
 			</Box>
 		),
@@ -74,17 +77,23 @@ export const AllVariants: Story = {
 		<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 			<StyledPaper variant="card">
 				<Typography variant="h6">Card</Typography>
-				<Typography variant="body2">Elevated card appearance</Typography>
+				<Typography variant="body2">
+					Elevated card appearance
+				</Typography>
 			</StyledPaper>
 
 			<StyledPaper variant="progress">
 				<Typography variant="h6">Progress</Typography>
-				<Typography variant="body2">Progress indicator styling</Typography>
+				<Typography variant="body2">
+					Progress indicator styling
+				</Typography>
 			</StyledPaper>
 
 			<StyledPaper variant="section">
 				<Typography variant="h6">Section</Typography>
-				<Typography variant="body2">Section container styling</Typography>
+				<Typography variant="body2">
+					Section container styling
+				</Typography>
 			</StyledPaper>
 		</Box>
 	),

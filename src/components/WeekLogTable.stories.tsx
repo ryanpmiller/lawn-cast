@@ -20,17 +20,19 @@ type Story = StoryObj<typeof meta>;
 
 // Generate a sample week
 const currentWeek = [
-	'2025-01-01', '2025-01-02', '2025-01-03', '2025-01-04',
-	'2025-01-05', '2025-01-06', '2025-01-07'
+	'2025-01-01',
+	'2025-01-02',
+	'2025-01-03',
+	'2025-01-04',
+	'2025-01-05',
+	'2025-01-06',
+	'2025-01-07',
 ];
 
 const weekWithToday = (() => {
 	const today = new Date();
 	const todayStr = today.toISOString().split('T')[0];
-	return [
-		todayStr,
-		...currentWeek.slice(1)
-	];
+	return [todayStr, ...currentWeek.slice(1)];
 })();
 
 export const Default: Story = {
@@ -70,7 +72,7 @@ export const PartiallyFilledWeek: Story = {
 		weekDates: currentWeek,
 	},
 	decorators: [
-		(Story) => {
+		Story => {
 			// Pre-populate some mock data
 			// Note: In a real app, this would come from the store
 			return <Story />;

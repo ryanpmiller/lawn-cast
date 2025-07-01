@@ -29,17 +29,20 @@ test.describe('Data Persistence', () => {
 	test('persists water log entries across navigation', async ({ page }) => {
 		// Set up location first
 		await page.evaluate(() => {
-			localStorage.setItem('lawncast_v1', JSON.stringify({
-				state: {
-					settings: {
-						zip: '20001',
-						sprinklerRateInPerHr: 0.5
+			localStorage.setItem(
+				'lawncast_v1',
+				JSON.stringify({
+					state: {
+						settings: {
+							zip: '20001',
+							sprinklerRateInPerHr: 0.5,
+						},
+						entries: {},
+						cache: null,
 					},
-					entries: {},
-					cache: null
-				},
-				version: 0
-			}));
+					version: 0,
+				})
+			);
 		});
 
 		await page.goto('/log');
@@ -78,19 +81,22 @@ test.describe('Data Persistence', () => {
 	test('clears all data when requested', async ({ page }) => {
 		// Set up some data
 		await page.evaluate(() => {
-			localStorage.setItem('lawncast_v1', JSON.stringify({
-				state: {
-					settings: {
-						zip: '20001',
-						sprinklerRateInPerHr: 0.8
+			localStorage.setItem(
+				'lawncast_v1',
+				JSON.stringify({
+					state: {
+						settings: {
+							zip: '20001',
+							sprinklerRateInPerHr: 0.8,
+						},
+						entries: {
+							'2025-01-01': { date: '2025-01-01', minutes: 30 },
+						},
+						cache: null,
 					},
-					entries: {
-						'2025-01-01': { date: '2025-01-01', minutes: 30 }
-					},
-					cache: null
-				},
-				version: 0
-			}));
+					version: 0,
+				})
+			);
 		});
 
 		await page.goto('/settings');
@@ -100,8 +106,14 @@ test.describe('Data Persistence', () => {
 		await expect(page.getByLabel(/sprinkler rate/i)).toHaveValue('0.8');
 
 		// Clear all data
-		await page.getByRole('button', { name: /clear all data/i }).first().click();
-		await page.getByRole('button', { name: /clear all data/i }).nth(1).click();
+		await page
+			.getByRole('button', { name: /clear all data/i })
+			.first()
+			.click();
+		await page
+			.getByRole('button', { name: /clear all data/i })
+			.nth(1)
+			.click();
 
 		// Data should be cleared
 		await expect(page.getByLabel(/update zip code/i)).toHaveValue('');
@@ -128,10 +140,13 @@ test.describe('Data Persistence', () => {
 	test('migrates data between app versions', async ({ page }) => {
 		// Set up old version data format
 		await page.evaluate(() => {
-			localStorage.setItem('lawncast_v0', JSON.stringify({
-				zip: '20001',
-				rate: 0.5
-			}));
+			localStorage.setItem(
+				'lawncast_v0',
+				JSON.stringify({
+					zip: '20001',
+					rate: 0.5,
+				})
+			);
 		});
 
 		await page.goto('/');

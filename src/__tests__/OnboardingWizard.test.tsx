@@ -1,4 +1,10 @@
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import {
+	render,
+	screen,
+	fireEvent,
+	waitFor,
+	act,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import OnboardingWizard from '../components/OnboardingWizard';
@@ -12,12 +18,12 @@ vi.mock('../api/nominatim', () => ({
 				postcode: '20001',
 				city: 'Washington',
 				state: 'DC',
-				country: 'United States'
+				country: 'United States',
 			},
 			lat: '38.9072',
-			lon: '-77.0369'
-		}
-	])
+			lon: '-77.0369',
+		},
+	]),
 }));
 
 beforeEach(() => {
@@ -34,9 +40,15 @@ describe('OnboardingWizard', () => {
 	it('renders step 1 location setup initially', () => {
 		render(<OnboardingWizard open={true} onClose={mockOnClose} />);
 
-		expect(screen.getByText(/step 1: set your location/i)).toBeInTheDocument();
-		expect(screen.getByText(/to personalize your watering advice/i)).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /allow location access/i })).toBeInTheDocument();
+		expect(
+			screen.getByText(/step 1: set your location/i)
+		).toBeInTheDocument();
+		expect(
+			screen.getByText(/to personalize your watering advice/i)
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole('button', { name: /allow location access/i })
+		).toBeInTheDocument();
 	});
 
 	it('allows manual ZIP entry', async () => {
@@ -44,7 +56,9 @@ describe('OnboardingWizard', () => {
 
 		// Click manual ZIP entry
 		await act(async () => {
-			fireEvent.click(screen.getByRole('button', { name: /enter zip manually/i }));
+			fireEvent.click(
+				screen.getByRole('button', { name: /enter zip manually/i })
+			);
 		});
 
 		expect(screen.getByLabelText(/zip code/i)).toBeInTheDocument();
@@ -55,7 +69,9 @@ describe('OnboardingWizard', () => {
 
 		// Go to manual ZIP entry
 		await act(async () => {
-			fireEvent.click(screen.getByRole('button', { name: /enter zip manually/i }));
+			fireEvent.click(
+				screen.getByRole('button', { name: /enter zip manually/i })
+			);
 		});
 
 		const zipInput = screen.getByLabelText(/zip code/i);
@@ -74,7 +90,9 @@ describe('OnboardingWizard', () => {
 
 		// Go to manual ZIP entry
 		await act(async () => {
-			fireEvent.click(screen.getByRole('button', { name: /enter zip manually/i }));
+			fireEvent.click(
+				screen.getByRole('button', { name: /enter zip manually/i })
+			);
 		});
 
 		const zipInput = screen.getByLabelText(/zip code/i);
@@ -86,7 +104,9 @@ describe('OnboardingWizard', () => {
 		});
 
 		await waitFor(() => {
-			expect(screen.getByText(/step 2: sun exposure & grass species/i)).toBeInTheDocument();
+			expect(
+				screen.getByText(/step 2: sun exposure & grass species/i)
+			).toBeInTheDocument();
 		});
 	});
 
@@ -95,7 +115,9 @@ describe('OnboardingWizard', () => {
 
 		// Navigate to step 2 (mocking successful ZIP lookup)
 		await act(async () => {
-			fireEvent.click(screen.getByRole('button', { name: /enter zip manually/i }));
+			fireEvent.click(
+				screen.getByRole('button', { name: /enter zip manually/i })
+			);
 		});
 
 		await act(async () => {
@@ -104,11 +126,15 @@ describe('OnboardingWizard', () => {
 		});
 
 		await waitFor(() => {
-			expect(screen.getByText(/how much sun does your lawn get/i)).toBeInTheDocument();
+			expect(
+				screen.getByText(/how much sun does your lawn get/i)
+			).toBeInTheDocument();
 		});
 
 		// Select sun exposure
-		const partialSunButton = screen.getByRole('button', { name: /partial shade/i });
+		const partialSunButton = screen.getByRole('button', {
+			name: /partial shade/i,
+		});
 		await act(async () => {
 			fireEvent.click(partialSunButton);
 		});
@@ -121,7 +147,9 @@ describe('OnboardingWizard', () => {
 
 		// Navigate to step 2
 		await act(async () => {
-			fireEvent.click(screen.getByRole('button', { name: /enter zip manually/i }));
+			fireEvent.click(
+				screen.getByRole('button', { name: /enter zip manually/i })
+			);
 		});
 
 		await act(async () => {
@@ -131,7 +159,9 @@ describe('OnboardingWizard', () => {
 
 		await waitFor(() => {
 			// Check for the select element specifically
-			expect(screen.getByRole('combobox', { name: /grass species/i })).toBeInTheDocument();
+			expect(
+				screen.getByRole('combobox', { name: /grass species/i })
+			).toBeInTheDocument();
 		});
 	});
 
@@ -140,7 +170,9 @@ describe('OnboardingWizard', () => {
 
 		// Navigate through steps
 		await act(async () => {
-			fireEvent.click(screen.getByRole('button', { name: /enter zip manually/i }));
+			fireEvent.click(
+				screen.getByRole('button', { name: /enter zip manually/i })
+			);
 		});
 
 		await act(async () => {
@@ -153,7 +185,9 @@ describe('OnboardingWizard', () => {
 		});
 
 		await waitFor(() => {
-			expect(screen.getByText(/step 3: sprinkler calibration/i)).toBeInTheDocument();
+			expect(
+				screen.getByText(/step 3: sprinkler calibration/i)
+			).toBeInTheDocument();
 			expect(screen.getByText(/tuna-can test/i)).toBeInTheDocument();
 		});
 	});
@@ -163,7 +197,9 @@ describe('OnboardingWizard', () => {
 
 		// Navigate to step 3
 		await act(async () => {
-			fireEvent.click(screen.getByRole('button', { name: /enter zip manually/i }));
+			fireEvent.click(
+				screen.getByRole('button', { name: /enter zip manually/i })
+			);
 		});
 
 		await act(async () => {
@@ -188,7 +224,9 @@ describe('OnboardingWizard', () => {
 		});
 
 		await waitFor(() => {
-			expect(screen.getByText(/enter a value between 0.1 and 2.0/i)).toBeInTheDocument();
+			expect(
+				screen.getByText(/enter a value between 0.1 and 2.0/i)
+			).toBeInTheDocument();
 		});
 	});
 
@@ -197,7 +235,9 @@ describe('OnboardingWizard', () => {
 
 		// Complete full flow
 		await act(async () => {
-			fireEvent.click(screen.getByRole('button', { name: /enter zip manually/i }));
+			fireEvent.click(
+				screen.getByRole('button', { name: /enter zip manually/i })
+			);
 		});
 
 		await act(async () => {
@@ -222,7 +262,9 @@ describe('OnboardingWizard', () => {
 
 		// Step 4: Should show notifications step and finish button
 		await waitFor(() => {
-			expect(screen.getByText(/step 4.*notifications/i)).toBeInTheDocument();
+			expect(
+				screen.getByText(/step 4.*notifications/i)
+			).toBeInTheDocument();
 		});
 
 		await waitFor(() => {
@@ -239,7 +281,9 @@ describe('OnboardingWizard', () => {
 		render(<OnboardingWizard open={true} onClose={mockOnClose} />);
 
 		await act(async () => {
-			fireEvent.click(screen.getByRole('button', { name: /skip for now/i }));
+			fireEvent.click(
+				screen.getByRole('button', { name: /skip for now/i })
+			);
 		});
 
 		expect(mockOnClose).toHaveBeenCalled();
@@ -249,24 +293,36 @@ describe('OnboardingWizard', () => {
 		// Mock geolocation failure
 		Object.defineProperty(global.navigator, 'geolocation', {
 			value: {
-				getCurrentPosition: vi.fn().mockImplementation((success, error) => {
-					setTimeout(() => error(new Error('Permission denied')), 100);
-				})
+				getCurrentPosition: vi
+					.fn()
+					.mockImplementation((success, error) => {
+						setTimeout(
+							() => error(new Error('Permission denied')),
+							100
+						);
+					}),
 			},
-			writable: true
+			writable: true,
 		});
 
 		render(<OnboardingWizard open={true} onClose={mockOnClose} />);
 
 		await act(async () => {
-			fireEvent.click(screen.getByRole('button', { name: /allow location access/i }));
+			fireEvent.click(
+				screen.getByRole('button', { name: /allow location access/i })
+			);
 		});
 
-		await waitFor(() => {
-			// Should show the ZIP input after geolocation fails
-			expect(screen.getByLabelText(/zip code/i)).toBeInTheDocument();
-			// Should show the manual ZIP entry text
-			expect(screen.getByText(/enter your zip code/i)).toBeInTheDocument();
-		}, { timeout: 3000 });
+		await waitFor(
+			() => {
+				// Should show the ZIP input after geolocation fails
+				expect(screen.getByLabelText(/zip code/i)).toBeInTheDocument();
+				// Should show the manual ZIP entry text
+				expect(
+					screen.getByText(/enter your zip code/i)
+				).toBeInTheDocument();
+			},
+			{ timeout: 3000 }
+		);
 	});
 });

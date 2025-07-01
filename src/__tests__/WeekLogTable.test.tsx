@@ -13,8 +13,13 @@ beforeEach(() => {
 
 describe('WeekLogTable', () => {
 	const mockWeekDates = [
-		'2025-01-01', '2025-01-02', '2025-01-03', '2025-01-04',
-		'2025-01-05', '2025-01-06', '2025-01-07'
+		'2025-01-01',
+		'2025-01-02',
+		'2025-01-03',
+		'2025-01-04',
+		'2025-01-05',
+		'2025-01-06',
+		'2025-01-07',
 	];
 
 	it('renders table with all days of the week', () => {
@@ -30,7 +35,7 @@ describe('WeekLogTable', () => {
 		expect(screen.getByText(/sunday/i)).toBeInTheDocument();
 	});
 
-		it('displays day names correctly', () => {
+	it('displays day names correctly', () => {
 		render(<WeekLogTable weekDates={mockWeekDates} />);
 
 		// Should show day names (component uses formatDayName which returns weekday names)
@@ -39,7 +44,7 @@ describe('WeekLogTable', () => {
 		expect(screen.getByText(/tuesday/i)).toBeInTheDocument();
 	});
 
-		it('renders edit buttons for each day', () => {
+	it('renders edit buttons for each day', () => {
 		render(<WeekLogTable weekDates={mockWeekDates} />);
 
 		const editButtons = screen.getAllByLabelText(/add\/edit minutes/i);
@@ -70,7 +75,7 @@ describe('WeekLogTable', () => {
 		expect(screen.getByText(/30 min/i)).toBeInTheDocument();
 	});
 
-		it('saves data to store when input changes', async () => {
+	it('saves data to store when input changes', async () => {
 		render(<WeekLogTable weekDates={mockWeekDates} />);
 
 		const editButtons = screen.getAllByLabelText(/add\/edit minutes/i);
@@ -101,7 +106,7 @@ describe('WeekLogTable', () => {
 		expect(screen.getByText(/45 min/i)).toBeInTheDocument();
 	});
 
-		it('shows minutes for each day', async () => {
+	it('shows minutes for each day', async () => {
 		// Pre-populate with some data
 		useLawnCastStore.getState().setEntry('2025-01-01', 20);
 		useLawnCastStore.getState().setEntry('2025-01-02', 30);
@@ -113,23 +118,22 @@ describe('WeekLogTable', () => {
 		expect(screen.getByText(/30 min/i)).toBeInTheDocument();
 	});
 
-		it('highlights today if current week is displayed', () => {
+	it('highlights today if current week is displayed', () => {
 		const today = new Date();
 		const todayStr = today.toISOString().split('T')[0];
 
 		// Create a week that includes today
-		const weekWithToday = [
-			todayStr,
-			...mockWeekDates.slice(1)
-		];
+		const weekWithToday = [todayStr, ...mockWeekDates.slice(1)];
 
 		render(<WeekLogTable weekDates={weekWithToday} />);
 
 		// Should show today's date formatted - use getAllByText since there might be multiple instances
 		const todayFormatted = new Intl.DateTimeFormat('en-US', {
-			weekday: 'long'
+			weekday: 'long',
 		}).format(today);
-		const todayElements = screen.getAllByText(new RegExp(todayFormatted, 'i'));
+		const todayElements = screen.getAllByText(
+			new RegExp(todayFormatted, 'i')
+		);
 		expect(todayElements.length).toBeGreaterThanOrEqual(1);
 	});
 

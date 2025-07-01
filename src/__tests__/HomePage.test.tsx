@@ -40,9 +40,12 @@ describe('HomePage', () => {
 		expect(skeletons.length).toBeGreaterThan(0);
 
 		// Wait for content to load
-		await waitFor(() => {
-			expect(screen.getByText(/water today/i)).toBeInTheDocument();
-		}, { timeout: 3000 });
+		await waitFor(
+			() => {
+				expect(screen.getByText(/water today/i)).toBeInTheDocument();
+			},
+			{ timeout: 3000 }
+		);
 	});
 
 	it('shows loading skeletons when no location is set', () => {
@@ -75,9 +78,12 @@ describe('HomePage', () => {
 		render(<HomePage />);
 
 		// Wait for content to load, then check for location
-		await waitFor(() => {
-			expect(screen.getByText(/water today/i)).toBeInTheDocument();
-		}, { timeout: 3000 });
+		await waitFor(
+			() => {
+				expect(screen.getByText(/water today/i)).toBeInTheDocument();
+			},
+			{ timeout: 3000 }
+		);
 
 		// Check that content loaded successfully (location might not be displayed in HomePage)
 		expect(screen.getByText(/water today/i)).toBeInTheDocument();
@@ -95,11 +101,16 @@ describe('HomePage', () => {
 		render(<HomePage />);
 
 		// Wait for content to load
-		await waitFor(() => {
-			expect(screen.getByText(/water today/i)).toBeInTheDocument();
-		}, { timeout: 3000 });
+		await waitFor(
+			() => {
+				expect(screen.getByText(/water today/i)).toBeInTheDocument();
+			},
+			{ timeout: 3000 }
+		);
 
 		// Check for explanation section
-		expect(screen.getByText(/why this recommendation/i)).toBeInTheDocument();
+		expect(
+			screen.getByText(/why this recommendation/i)
+		).toBeInTheDocument();
 	});
 });

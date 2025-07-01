@@ -1,4 +1,10 @@
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import {
+	render,
+	screen,
+	fireEvent,
+	waitFor,
+	act,
+} from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import LogPage from '../pages/LogPage';
 import { useLawnCastStore } from '../models/store';
