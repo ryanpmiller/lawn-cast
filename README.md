@@ -39,23 +39,35 @@ Smart watering advice for your lawn based on weather data and lawn conditions.
 - `npm run e2e` - Run end-to-end tests
 - `npm run proxy` - Start NOAA data proxy server
 
-### Code Quality
+### Testing & Quality Assurance
 
-This project uses automated code quality checks:
+The project includes comprehensive testing with automatic quality gates:
 
-- **Formatting**: Prettier is used for code formatting
+- **Unit Tests**: 60 tests covering components, logic, and API layers
+- **E2E Tests**: 22 tests covering user workflows and integration
+- **Precommit Hooks**: Automatic formatting, linting, and unit tests
+- **Pre-push Hooks**: Automatic E2E testing before pushing
+- **CI/CD**: GitHub Actions with parallel test execution
+
+**Quality Tools**:
+
+- **Formatting**: Prettier for consistent code style
 - **Linting**: ESLint for code quality and consistency
-- **Testing**: Vitest for unit tests, Playwright for e2e tests
+- **Testing**: Vitest for unit tests, Playwright for E2E tests
 
-### Pre-commit Hooks
+**Development Workflow**:
 
-The project has pre-commit hooks that will:
+1. **Commit**: Fast checks (format, lint, unit tests) in ~5 seconds
+2. **Push**: Integration tests (E2E) in ~15 seconds
+3. **CI**: Full validation pipeline in ~3-5 minutes
 
-1. **Check formatting** - Fails if code is not properly formatted
-2. **Run linting** - Fails if there are linting errors
-3. **Run tests** - Fails if any tests fail
+See [Testing Workflow Documentation](docs/testing-workflow.md) for detailed information.
 
-If the formatting check fails, run `npm run format` to fix formatting issues, then commit again.
+### Troubleshooting
+
+**Formatting check fails**: Run `npm run format` to auto-fix, then commit again
+**E2E tests timeout**: Ensure ports 3001, 5173-5175 are available
+**Need to bypass hooks**: Use `--no-verify` flag (sparingly)
 
 ### Contributing
 
