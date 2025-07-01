@@ -61,116 +61,129 @@ export default function HomePage() {
 	}, [settings.lat, settings.lon, settings.zip]);
 
 	useEffect(() => {
-		async function fetchWeatherIfNeeded() {
-			if (!settings.lat || !settings.lon || !settings.zip) return;
-			const cache = getCachedWeatherData();
-			if (cache) return;
+		async function fetchWeatherAndCalculateDecision() {
+			// Early return if location not set
+			if (!settings.lat || !settings.lon || !settings.zip) {
+				setLoading(false);
+				return;
+			}
+
 			setLoading(true);
+
 			try {
-				// Get week range (Sunday to Saturday)
-				const now = new Date();
-				const weekStart = format(
-					startOfWeek(now, { weekStartsOn: 0 }),
-					'yyyy-MM-dd'
-				);
-				const weekEnd = format(
-					endOfWeek(now, { weekStartsOn: 0 }),
-					'yyyy-MM-dd'
-				);
-				// Fetch NWS data for forecast (today and future)
-				const nwsWeek = await getPrecip(
-					settings.lat,
-					settings.lon,
-					weekStart,
-					weekEnd
-				);
-				// Observed precip via NWPS/GHCND (past days only)
-				const observedRaw = await getObservedPrecip(
-					settings.lat,
-					settings.lon
-				);
+				// Check if we have valid cached weather data
+				const existingCache = getCachedWeatherData();
+				if (!existingCache) {
+					// Fetch fresh weather data
+					const now = new Date();
+					const weekStart = format(
+						startOfWeek(now, { weekStartsOn: 0 }),
+						'yyyy-MM-dd'
+					);
+					const weekEnd = format(
+						endOfWeek(now, { weekStartsOn: 0 }),
+						'yyyy-MM-dd'
+					);
 
-				const todayStr = format(new Date(), 'yyyy-MM-dd');
-				const observedInches: Record<
-					string,
-					{ amount: number; pop: number }
-				> = {};
-				const forecastInches: Record<
-					string,
-					{ amount: number; pop: number }
-				> = {};
+					// Fetch NWS data for forecast (today and future)
+					const nwsWeek = await getPrecip(
+						settings.lat,
+						settings.lon,
+						weekStart,
+						weekEnd
+					);
+					// Observed precip via NWPS/GHCND (past days only)
+					const observedRaw = await getObservedPrecip(
+						settings.lat,
+						settings.lon
+					);
 
-				// Add observed data (past days within current week only)
-				for (const date in observedRaw) {
-					const dateObj = new Date(date);
-					const weekStartDate = new Date(weekStart);
-					const todayDate = new Date(todayStr);
+					const todayStr = format(new Date(), 'yyyy-MM-dd');
+					const observedInches: Record<
+						string,
+						{ amount: number; pop: number }
+					> = {};
+					const forecastInches: Record<
+						string,
+						{ amount: number; pop: number }
+					> = {};
 
-					// Only include dates that are:
-					// 1. Within the current week (>= weekStart)
-					// 2. Before today (past days only)
-					if (
-						dateObj >= weekStartDate &&
-						isBefore(dateObj, todayDate)
-					) {
-						observedInches[date] = observedRaw[date];
+					// Add observed data (past days within current week only)
+					for (const date in observedRaw) {
+						const dateObj = new Date(date);
+						const weekStartDate = new Date(weekStart);
+						const todayDate = new Date(todayStr);
+
+						if (
+							dateObj >= weekStartDate &&
+							isBefore(dateObj, todayDate)
+						) {
+							observedInches[date] = observedRaw[date];
+						}
 					}
+
+					// Add forecast data (today and future days within current week only)
+					for (const date in nwsWeek) {
+						const dateObj = new Date(date);
+						const weekEndDate = new Date(weekEnd);
+						const todayDate = new Date(todayStr);
+
+						if (
+							!isBefore(dateObj, todayDate) &&
+							dateObj <= weekEndDate
+						) {
+							forecastInches[date] = nwsWeek[date];
+						}
+					}
+
+					setWeatherCache({
+						timestamp: Date.now(),
+						observedInches,
+						forecastInches,
+					});
 				}
 
-				// Add forecast data (today and future days within current week only)
-				for (const date in nwsWeek) {
-					const dateObj = new Date(date);
-					const weekEndDate = new Date(weekEnd);
-					const todayDate = new Date(todayStr);
-
-					// Only include dates that are:
-					// 1. Today or future days (!isBefore(dateObj, todayDate))
-					// 2. Within the current week (<= weekEnd)
-					if (
-						!isBefore(dateObj, todayDate) &&
-						dateObj <= weekEndDate
-					) {
-						forecastInches[date] = nwsWeek[date];
-					}
+				// Calculate decision with current cache (either existing or newly fetched)
+				const currentCache = getCachedWeatherData();
+				if (currentCache) {
+					const { rainPast, rainForecast, loggedWater } =
+						calculateWaterAmounts(
+							currentCache,
+							entries,
+							settings.sprinklerRateInPerHr
+						);
+					const zone = settings.zone || 'cool';
+					const sunExposure = settings.sunExposure || 'full';
+					const result = calculateDecision({
+						rainPast,
+						rainForecast,
+						loggedWater,
+						zone,
+						sunExposure,
+					});
+					setDecision(result);
 				}
-
-				setWeatherCache({
-					timestamp: Date.now(),
-					observedInches,
-					forecastInches,
-				});
-			} catch {
+			} catch (error) {
+				console.error(
+					'Error in weather fetch and decision calculation:',
+					error
+				);
 				// Optionally handle error (e.g., show a toast)
 			} finally {
 				setLoading(false);
 			}
 		}
-		fetchWeatherIfNeeded();
-		// Only run when lat/lon/zip change
-	}, [settings.lat, settings.lon, settings.zip]);
 
-	useEffect(() => {
-		// Simulate async data prep
-		setTimeout(() => {
-			const { rainPast, rainForecast, loggedWater } =
-				calculateWaterAmounts(
-					cache,
-					entries,
-					settings.sprinklerRateInPerHr
-				);
-			const zone = settings.zone || 'cool';
-			const sunExposure = settings.sunExposure || 'full';
-			const result = calculateDecision({
-				rainPast,
-				rainForecast,
-				loggedWater,
-				zone,
-				sunExposure,
-			});
-			setDecision(result);
-			setLoading(false);
-		}, 500);
-	}, [cache, entries, settings]);
+		fetchWeatherAndCalculateDecision();
+	}, [
+		settings.lat,
+		settings.lon,
+		settings.zip,
+		entries,
+		settings.sprinklerRateInPerHr,
+		settings.zone,
+		settings.sunExposure,
+	]);
 
 	return (
 		<PageLayout title="Home" alignItems="center" titleAlign="center">
@@ -178,8 +191,9 @@ export default function HomePage() {
 				{loading ? (
 					<Skeleton
 						variant="rectangular"
-						height={120}
+						height={240}
 						animation="wave"
+						sx={{ borderRadius: 3 }}
 					/>
 				) : (
 					decision && (
@@ -195,9 +209,10 @@ export default function HomePage() {
 				{loading ? (
 					<Skeleton
 						variant="rounded"
-						height={24}
+						height={36}
 						width="100%"
 						animation="wave"
+						sx={{ borderRadius: 3 }}
 					/>
 				) : (
 					decision && (
@@ -214,11 +229,68 @@ export default function HomePage() {
 			</StyledPaper>
 			<StyledPaper variant="section">
 				{loading ? (
-					<Stack spacing={1}>
-						<Skeleton width="60%" height={24} animation="wave" />
-						<Skeleton width="80%" height={20} animation="wave" />
-						<Skeleton width="40%" height={20} animation="wave" />
-					</Stack>
+					<Box sx={{ p: { xs: 2, sm: 3 } }}>
+						{/* Title skeleton */}
+						<Skeleton
+							width="60%"
+							height={28}
+							animation="wave"
+							sx={{ mb: 1 }}
+						/>
+
+						{/* Description skeleton */}
+						<Skeleton
+							width="100%"
+							height={20}
+							animation="wave"
+							sx={{ mb: 0.5 }}
+						/>
+						<Skeleton
+							width="100%"
+							height={20}
+							animation="wave"
+							sx={{ mb: 0.5 }}
+						/>
+						<Skeleton
+							width="25%"
+							height={20}
+							animation="wave"
+							sx={{ mb: 2 }}
+						/>
+
+						{/* Breakdown cards skeleton */}
+						<Stack
+							direction="row"
+							spacing={2}
+							justifyContent="space-between"
+							sx={{ mb: 2 }}
+						>
+							{[1, 2, 3].map(i => (
+								<Stack
+									key={i}
+									alignItems="center"
+									spacing={0.5}
+									minWidth={72}
+								>
+									<Skeleton
+										width={48}
+										height={16}
+										animation="wave"
+									/>
+									<Skeleton
+										variant="rounded"
+										width={70}
+										height={40}
+										animation="wave"
+										sx={{ borderRadius: 2 }}
+									/>
+								</Stack>
+							))}
+						</Stack>
+
+						{/* Footer text skeleton */}
+						<Skeleton width="70%" height={16} animation="wave" />
+					</Box>
 				) : (
 					decision && (
 						<>
@@ -308,7 +380,11 @@ export default function HomePage() {
 										<Typography
 											variant="caption"
 											color="text.secondary"
-											sx={{ mt: 1, display: 'block' }}
+											sx={{
+												mt: 1,
+												mb: 1,
+												display: 'block',
+											}}
 										>
 											Highlighted rows are included in the
 											forecast total (≥60% probability).

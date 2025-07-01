@@ -48,13 +48,16 @@ describe('HomePage', () => {
 		);
 	});
 
-	it('shows loading skeletons when no location is set', () => {
+	it('shows no content when no location is set', () => {
 		useLawnCastStore.getState().update({ zip: '', lat: 0, lon: 0 });
 		render(<HomePage />);
 
-		// Should show skeleton loading states
+		// Should not show loading skeletons when location is not set
 		const skeletons = document.querySelectorAll('.MuiSkeleton-root');
-		expect(skeletons.length).toBeGreaterThan(0);
+		expect(skeletons.length).toBe(0);
+
+		// Should not show decision content either
+		expect(screen.queryByText(/water today/i)).not.toBeInTheDocument();
 	});
 
 	it('displays watering decision card with recommendation', async () => {
