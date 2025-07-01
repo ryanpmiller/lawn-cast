@@ -19,7 +19,7 @@ interface LogSlice {
 // Weather Slice
 interface WeatherSlice {
 	cache: WeatherCache | null;
-	setCache: (cache: WeatherCache) => void;
+	setCache: (cache: WeatherCache | null) => void;
 }
 
 // Default settings for initial state (should be replaced with onboarding values)

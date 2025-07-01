@@ -48,6 +48,8 @@ export default function WeekLogTable({ weekDates }: { weekDates: string[] }) {
 				maxWidth: 420,
 				mx: 'auto',
 				borderRadius: 1,
+				border: '1px solid',
+				borderColor: 'divider',
 				overflow: 'hidden',
 			}}
 		>

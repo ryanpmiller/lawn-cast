@@ -48,6 +48,19 @@ export default function HomePage() {
 	const cache = useLawnCastStore(s => s.cache);
 
 	useEffect(() => {
+		// Clear cache when location changes to ensure fresh data for new location
+		if (settings.lat && settings.lon && settings.zip) {
+			const cache = useLawnCastStore.getState().cache;
+			if (cache) {
+				// Clear the weather cache to force fresh data fetch for new location
+				useLawnCastStore.getState().setCache(null);
+			}
+			// Also clear the observed precipitation cache from localStorage
+			localStorage.removeItem('observedPrecip_v1');
+		}
+	}, [settings.lat, settings.lon, settings.zip]);
+
+	useEffect(() => {
 		async function fetchWeatherIfNeeded() {
 			if (!settings.lat || !settings.lon || !settings.zip) return;
 			const cache = getCachedWeatherData();

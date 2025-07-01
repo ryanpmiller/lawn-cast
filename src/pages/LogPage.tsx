@@ -30,7 +30,7 @@ export default function LogPage() {
 				sx={{
 					p: 2,
 					mb: 2,
-					border: '2px solid',
+					border: '1px solid',
 					borderColor: 'divider',
 					width: '100%',
 					maxWidth: 420,

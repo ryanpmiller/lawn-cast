@@ -84,7 +84,7 @@ function Bar({
 				width: '100%',
 				height: 36,
 				display: 'flex',
-				borderRadius: 18,
+				borderRadius: 3,
 				overflow: 'hidden',
 				bgcolor: theme.palette.grey[200],
 				border: `1px solid ${theme.palette.divider}`,

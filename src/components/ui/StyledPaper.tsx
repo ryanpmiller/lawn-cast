@@ -20,13 +20,12 @@ export const StyledPaper = forwardRef<HTMLDivElement, StyledPaperProps>(
 						overflow: 'hidden',
 						width: '100%',
 						maxWidth: { xs: '100%', sm: 480 },
-						border: '1px solid',
-						borderColor: 'divider',
+						border: 'none',
 						boxShadow: 'none',
 					};
 				case 'progress':
 					return {
-						borderRadius: 2,
+						borderRadius: 3,
 						p: 2,
 						display: 'flex',
 						alignItems: 'center',
@@ -40,7 +39,7 @@ export const StyledPaper = forwardRef<HTMLDivElement, StyledPaperProps>(
 				case 'section':
 				default:
 					return {
-						borderRadius: 2,
+						borderRadius: 3,
 						p: 2,
 						minHeight: 100,
 						width: '100%',
