@@ -145,24 +145,26 @@ export default function HomePage() {
 
 				// Calculate decision with current cache (either existing or newly fetched)
 				const currentCache = getCachedWeatherData();
-				if (currentCache) {
-					const { rainPast, rainForecast, loggedWater } =
-						calculateWaterAmounts(
-							currentCache,
-							entries,
-							settings.sprinklerRateInPerHr
-						);
-					const zone = settings.zone || 'cool';
-					const sunExposure = settings.sunExposure || 'full';
-					const result = calculateDecision({
-						rainPast,
-						rainForecast,
-						loggedWater,
-						zone,
-						sunExposure,
-					});
-					setDecision(result);
-				}
+				const { rainPast, rainForecast, loggedWater } =
+					calculateWaterAmounts(
+						currentCache || {
+							timestamp: Date.now(),
+							observedInches: {},
+							forecastInches: {},
+						},
+						entries,
+						settings.sprinklerRateInPerHr
+					);
+				const zone = settings.zone || 'cool';
+				const sunExposure = settings.sunExposure || 'full';
+				const result = calculateDecision({
+					rainPast,
+					rainForecast,
+					loggedWater,
+					zone,
+					sunExposure,
+				});
+				setDecision(result);
 			} catch (error) {
 				console.error(
 					'Error in weather fetch and decision calculation:',

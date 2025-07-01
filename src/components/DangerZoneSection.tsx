@@ -1,6 +1,5 @@
 import {
 	Box,
-	Typography,
 	Button,
 	Alert,
 	Dialog,
@@ -24,15 +23,7 @@ export default function DangerZoneSection() {
 	};
 
 	return (
-		<Box sx={{ mb: 4 }}>
-			<Typography
-				variant="h6"
-				fontWeight={700}
-				gutterBottom
-				color="error"
-			>
-				Danger Zone
-			</Typography>
+		<Box>
 			<Button
 				variant="contained"
 				color="error"
@@ -43,10 +34,8 @@ export default function DangerZoneSection() {
 			<Dialog open={open} onClose={() => setOpen(false)}>
 				<DialogTitle>Confirm Data Reset</DialogTitle>
 				<DialogContent>
-					<Typography>
-						Are you sure you want to clear all app data? This cannot
-						be undone.
-					</Typography>
+					Are you sure you want to clear all app data? This cannot be
+					undone.
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={() => setOpen(false)}>Cancel</Button>

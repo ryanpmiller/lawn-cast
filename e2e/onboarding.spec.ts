@@ -47,11 +47,19 @@ test.describe('Onboarding Wizard (Mobile)', () => {
 		await expect(page.getByRole('dialog')).not.toBeVisible();
 	});
 
-	test('can skip onboarding at any step', async ({ page }) => {
+	test('can skip onboarding after setting location', async ({ page }) => {
 		await page.goto('/');
-		// Step 1: click skip
+		// Step 1: Location is required, so we need to set it first
+		await page.getByRole('button', { name: /enter zip manually/i }).click();
+		await page.getByLabel('ZIP code').fill('90210');
+		await page.getByRole('button', { name: /continue/i }).click();
+
+		// Step 2: Now we can skip the rest
+		await expect(
+			page.getByRole('dialog', { name: /step 2/i })
+		).toBeVisible();
 		await page.getByRole('button', { name: /skip for now/i }).click();
 		await expect(page.getByRole('dialog')).not.toBeVisible();
-		// Do not reload and expect onboarding again, since settings are now set
+		// Settings should have location but default values for other fields
 	});
 });

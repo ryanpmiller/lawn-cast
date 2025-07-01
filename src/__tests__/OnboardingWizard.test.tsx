@@ -41,10 +41,10 @@ describe('OnboardingWizard', () => {
 		render(<OnboardingWizard open={true} onClose={mockOnClose} />);
 
 		expect(
-			screen.getByText(/step 1: set your location/i)
+			screen.getByText(/step 1: set your location \(required\)/i)
 		).toBeInTheDocument();
 		expect(
-			screen.getByText(/to personalize your watering advice/i)
+			screen.getByText(/to provide accurate watering recommendations/i)
 		).toBeInTheDocument();
 		expect(
 			screen.getByRole('button', { name: /allow location access/i })
@@ -277,8 +277,27 @@ describe('OnboardingWizard', () => {
 		expect(mockOnClose).toHaveBeenCalled();
 	});
 
-	it('allows skipping onboarding', async () => {
+	it('allows skipping onboarding after setting location', async () => {
 		render(<OnboardingWizard open={true} onClose={mockOnClose} />);
+
+		// First set location (required)
+		await act(async () => {
+			fireEvent.click(
+				screen.getByRole('button', { name: /enter zip manually/i })
+			);
+		});
+
+		await act(async () => {
+			await userEvent.type(screen.getByLabelText(/zip code/i), '20001');
+			fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+		});
+
+		// Now we can skip from step 2
+		await waitFor(() => {
+			expect(
+				screen.getByText(/step 2: sun exposure & grass species/i)
+			).toBeInTheDocument();
+		});
 
 		await act(async () => {
 			fireEvent.click(
@@ -317,9 +336,9 @@ describe('OnboardingWizard', () => {
 			() => {
 				// Should show the ZIP input after geolocation fails
 				expect(screen.getByLabelText(/zip code/i)).toBeInTheDocument();
-				// Should show the manual ZIP entry text
+				// Should show the updated manual ZIP entry text
 				expect(
-					screen.getByText(/enter your zip code/i)
+					screen.getByText(/please enter your 5-digit zip code/i)
 				).toBeInTheDocument();
 			},
 			{ timeout: 3000 }

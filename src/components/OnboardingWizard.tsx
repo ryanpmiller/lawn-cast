@@ -84,6 +84,12 @@ export default function OnboardingWizard({
 					if (mapped.length > 0) {
 						setSelectedZip(mapped[0]);
 						setManualZip(mapped[0].zip);
+						// Save location immediately to store
+						updateSettings({
+							zip: mapped[0].zip,
+							lat: mapped[0].lat,
+							lon: mapped[0].lon,
+						});
 						setStep(1.5); // Show ZIP input with prefilled value, do not advance
 					} else {
 						setGeoError(
@@ -162,38 +168,33 @@ export default function OnboardingWizard({
 	];
 
 	function handleSkip() {
+		// Only set defaults for settings that haven't been configured yet
+		// Preserve any location and other settings that were already set
+		const currentSettings = useLawnCastStore.getState().settings;
 		updateSettings({
-			zip: '',
-			lat: 0,
-			lon: 0,
-			zone: 'cool',
-			grassSpecies: 'kentucky_bluegrass',
-			sunExposure: 'full',
-			sprinklerRateInPerHr: 0.5,
-			notificationsEnabled: false,
-			notificationHour: 8,
-			theme: 'system',
+			// Keep existing location if set, otherwise use defaults
+			zip: currentSettings.zip || selectedZip?.zip || '',
+			lat: currentSettings.lat || selectedZip?.lat || 0,
+			lon: currentSettings.lon || selectedZip?.lon || 0,
+			// Set defaults for unconfigured settings
+			zone: currentSettings.zone || 'cool',
+			grassSpecies: currentSettings.grassSpecies || 'kentucky_bluegrass',
+			sunExposure: currentSettings.sunExposure || 'full',
+			sprinklerRateInPerHr: currentSettings.sprinklerRateInPerHr || 0.5,
+			notificationsEnabled: currentSettings.notificationsEnabled || false,
+			notificationHour: currentSettings.notificationHour || 8,
+			theme: currentSettings.theme || 'system',
 		});
 		onClose();
 	}
 
 	function handleFinish() {
+		// Most settings are already saved progressively, just ensure any remaining defaults are set
+		const currentSettings = useLawnCastStore.getState().settings;
 		updateSettings({
-			zip: selectedZip?.zip || '',
-			lat: selectedZip?.lat || 0,
-			lon: selectedZip?.lon || 0,
-			zone: 'cool', // TODO: infer from ZIP/region if available
-			grassSpecies: species as
-				| 'kentucky_bluegrass'
-				| 'tall_fescue'
-				| 'bermuda'
-				| 'zoysia'
-				| 'st_augustine',
-			sunExposure: sun as 'full' | 'partial' | 'shade',
-			sprinklerRateInPerHr: sprinklerRate,
-			notificationsEnabled,
-			notificationHour,
-			theme: 'system',
+			// Ensure zone and theme are set if not already configured
+			zone: currentSettings.zone || 'cool', // TODO: infer from ZIP/region if available
+			theme: currentSettings.theme || 'system',
 		});
 		onClose();
 	}
@@ -225,6 +226,12 @@ export default function OnboardingWizard({
 				}));
 			if (mapped.length > 0) {
 				setSelectedZip(mapped[0]);
+				// Save location immediately to store
+				updateSettings({
+					zip: mapped[0].zip,
+					lat: mapped[0].lat,
+					lon: mapped[0].lon,
+				});
 				setStep(2);
 			} else {
 				setManualZipError('ZIP code not found.');
@@ -249,7 +256,16 @@ export default function OnboardingWizard({
 								variant={
 									sun === opt.value ? 'contained' : 'outlined'
 								}
-								onClick={() => setSun(opt.value)}
+								onClick={() => {
+									setSun(opt.value);
+									// Save sun exposure immediately
+									updateSettings({
+										sunExposure: opt.value as
+											| 'full'
+											| 'partial'
+											| 'shade',
+									});
+								}}
 							>
 								{opt.label}
 							</Button>
@@ -262,7 +278,18 @@ export default function OnboardingWizard({
 						select
 						label="Grass Species"
 						value={species}
-						onChange={e => setSpecies(e.target.value)}
+						onChange={e => {
+							setSpecies(e.target.value);
+							// Save grass species immediately
+							updateSettings({
+								grassSpecies: e.target.value as
+									| 'kentucky_bluegrass'
+									| 'tall_fescue'
+									| 'bermuda'
+									| 'zoysia'
+									| 'st_augustine',
+							});
+						}}
 						SelectProps={{ native: true }}
 						fullWidth
 					>
@@ -316,6 +343,12 @@ export default function OnboardingWizard({
 									? ''
 									: 'Enter a value between 0.1 and 2.0'
 							);
+							// Save sprinkler rate immediately if valid
+							if (!isNaN(val) && val >= 0.1 && val <= 2.0) {
+								updateSettings({
+									sprinklerRateInPerHr: val,
+								});
+							}
 						}}
 						inputProps={{ min: 0.1, max: 2, step: 0.01 }}
 						fullWidth
@@ -356,9 +389,13 @@ export default function OnboardingWizard({
 						control={
 							<Switch
 								checked={notificationsEnabled}
-								onChange={e =>
-									setNotificationsEnabled(e.target.checked)
-								}
+								onChange={e => {
+									setNotificationsEnabled(e.target.checked);
+									// Save notifications setting immediately
+									updateSettings({
+										notificationsEnabled: e.target.checked,
+									});
+								}}
 								color="primary"
 							/>
 						}
@@ -370,9 +407,13 @@ export default function OnboardingWizard({
 							select
 							label="Notification Time"
 							value={notificationHour}
-							onChange={e =>
-								setNotificationHour(Number(e.target.value))
-							}
+							onChange={e => {
+								setNotificationHour(Number(e.target.value));
+								// Save notification time immediately
+								updateSettings({
+									notificationHour: Number(e.target.value),
+								});
+							}}
 							fullWidth
 							sx={{ mt: 3 }}
 						>
@@ -404,14 +445,15 @@ export default function OnboardingWizard({
 	}
 
 	return (
-		<Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-			<DialogTitle>Step 1: Set Your Location</DialogTitle>
+		<Dialog open={open} maxWidth="sm" fullWidth disableEscapeKeyDown>
+			<DialogTitle>Step 1: Set Your Location (Required)</DialogTitle>
 			<DialogContent>
 				{step === 1 && (
 					<Box sx={{ mt: 1 }}>
 						<Typography gutterBottom>
-							To personalize your watering advice, LawnCast needs
-							your location.
+							To provide accurate watering recommendations,
+							LawnCast requires your location. Please choose one
+							of the options below:
 						</Typography>
 						<Button
 							variant="contained"
@@ -444,7 +486,7 @@ export default function OnboardingWizard({
 				{step === 1.5 && (
 					<Box sx={{ mt: 1 }}>
 						<Typography gutterBottom>
-							Enter your ZIP code:
+							Please enter your 5-digit ZIP code:
 						</Typography>
 						<TextField
 							label="ZIP code"
@@ -471,12 +513,6 @@ export default function OnboardingWizard({
 					</Box>
 				)}
 			</DialogContent>
-			<DialogActions>
-				<Button onClick={handleSkip} color="secondary">
-					Skip for now
-				</Button>
-				<Button onClick={onClose}>Close</Button>
-			</DialogActions>
 		</Dialog>
 	);
 }

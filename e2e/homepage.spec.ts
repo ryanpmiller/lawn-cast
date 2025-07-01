@@ -12,8 +12,10 @@ test.describe('HomePage', () => {
 		await page.evaluate(() => localStorage.clear());
 		await page.reload();
 
-		// Should show skeleton loading states when no location is set
-		await expect(page.locator('.MuiSkeleton-root').first()).toBeVisible();
+		// Should show onboarding wizard when no location is set
+		await expect(page.getByText(/set your location/i)).toBeVisible({
+			timeout: 5000,
+		});
 	});
 
 	test('displays watering recommendation when location is set', async ({
@@ -46,8 +48,10 @@ test.describe('HomePage', () => {
 		});
 		await page.reload();
 
-		// Wait for content to load and check for actual text content
-		await expect(page.getByText(/water today/i)).toBeVisible({
+		// Wait for content to load and check for watering decision content
+		await expect(
+			page.getByText(/water today|no need to water/i)
+		).toBeVisible({
 			timeout: 10000,
 		});
 		// Use first() to avoid strict mode violation
@@ -196,7 +200,9 @@ test.describe('HomePage', () => {
 		await page.reload();
 
 		// Location info might not be displayed in HomePage, check for successful content load instead
-		await expect(page.getByText(/water today/i)).toBeVisible({
+		await expect(
+			page.getByText(/water today|no need to water/i)
+		).toBeVisible({
 			timeout: 10000,
 		});
 	});
@@ -205,10 +211,19 @@ test.describe('HomePage', () => {
 		// Should not show loading spinners indefinitely
 		await page.waitForLoadState('networkidle');
 
-		// Main content should be visible (either loaded content or skeleton)
-		await expect(
-			page.locator('.MuiSkeleton-root, [data-testid*="water"]').first()
-		).toBeVisible();
+		// Should show the main app content (the page should have loaded successfully)
+		await expect(page.locator('body')).toBeVisible();
+
+		// Check that the app is responsive - either shows onboarding or navigation
+		const hasOnboarding = await page
+			.getByText(/set your location/i)
+			.isVisible();
+		const hasBottomNav = await page
+			.locator('.MuiBottomNavigation-root')
+			.isVisible();
+
+		// One of these should be visible
+		expect(hasOnboarding || hasBottomNav).toBe(true);
 	});
 
 	test('responsive design works on mobile', async ({ page }) => {
