@@ -2,6 +2,10 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
 	testDir: './e2e',
+	reporter: [
+		['html', { outputFolder: 'playwright-report' }],
+		['list'], // Keep list reporter for console output
+	],
 	use: {
 		browserName: 'chromium',
 		viewport: { width: 390, height: 844 },
