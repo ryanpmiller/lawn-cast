@@ -6,7 +6,9 @@ export default defineConfig({
 		browserName: 'chromium',
 		viewport: { width: 390, height: 844 },
 		headless: true,
-		baseURL: 'http://localhost:5173',
+		baseURL: process.env.CI
+			? 'http://localhost:4173'
+			: 'http://localhost:5173',
 	},
 	projects: [
 		{
@@ -14,9 +16,11 @@ export default defineConfig({
 			use: { ...devices['Pixel 5'] },
 		},
 	],
-	webServer: {
-		command: 'npm run dev -- --port 5173',
-		port: 5173,
-		reuseExistingServer: !process.env.CI,
-	},
+	webServer: process.env.CI
+		? undefined
+		: {
+				command: 'npm run dev -- --port 5173',
+				port: 5173,
+				reuseExistingServer: !process.env.CI,
+			},
 });

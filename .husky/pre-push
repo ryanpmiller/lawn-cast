@@ -1,0 +1,50 @@
+#!/bin/sh
+
+# Exit on any command failure
+set -e
+
+echo "🧪 Running E2E tests before push..."
+echo "⏱️  This may take ~15 seconds..."
+
+# Check if proxy server is already running
+if ! curl -s http://localhost:3001/health > /dev/null 2>&1; then
+    echo "🚀 Starting proxy server..."
+    npm run proxy &
+    PROXY_PID=$!
+    # Wait for proxy to be ready
+    sleep 2
+else
+    echo "✅ Proxy server already running"
+    PROXY_PID=""
+fi
+
+# Check if dev server is already running
+if ! curl -s http://localhost:5173 > /dev/null 2>&1 && ! curl -s http://localhost:5174 > /dev/null 2>&1 && ! curl -s http://localhost:5175 > /dev/null 2>&1; then
+    echo "🚀 Starting dev server..."
+    npm run dev &
+    DEV_PID=$!
+    # Wait for dev server to be ready
+    sleep 3
+else
+    echo "✅ Dev server already running"
+    DEV_PID=""
+fi
+
+# Function to cleanup background processes
+cleanup() {
+    if [ -n "$PROXY_PID" ]; then
+        kill $PROXY_PID 2>/dev/null || true
+    fi
+    if [ -n "$DEV_PID" ]; then
+        kill $DEV_PID 2>/dev/null || true
+    fi
+}
+
+# Set trap to cleanup on exit
+trap cleanup EXIT
+
+# Run E2E tests
+echo "🎭 Running Playwright E2E tests..."
+npm run e2e
+
+echo "✅ All E2E tests passed! Pushing to remote..."

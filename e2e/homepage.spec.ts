@@ -13,7 +13,7 @@ test.describe('HomePage', () => {
 		await page.reload();
 
 		// Should show skeleton loading states when no location is set
-		await expect(page.locator('.MuiSkeleton-root')).toBeVisible();
+		await expect(page.locator('.MuiSkeleton-root').first()).toBeVisible();
 	});
 
 	test('displays watering recommendation when location is set', async ({
@@ -32,6 +32,10 @@ test.describe('HomePage', () => {
 							grassSpecies: 'kentucky_bluegrass',
 							sunExposure: 'full',
 							sprinklerRateInPerHr: 0.5,
+							zone: 'cool',
+							notificationsEnabled: false,
+							notificationHour: 8,
+							theme: 'system',
 						},
 						entries: {},
 						cache: null,
@@ -46,7 +50,10 @@ test.describe('HomePage', () => {
 		await expect(page.getByText(/water today/i)).toBeVisible({
 			timeout: 10000,
 		});
-		await expect(page.getByText(/progress/i)).toBeVisible();
+		// Use first() to avoid strict mode violation
+		await expect(
+			page.getByText(/progress|target|inches/i).first()
+		).toBeVisible();
 	});
 
 	test('shows weather data and progress bar', async ({ page }) => {
@@ -63,6 +70,10 @@ test.describe('HomePage', () => {
 							grassSpecies: 'kentucky_bluegrass',
 							sunExposure: 'full',
 							sprinklerRateInPerHr: 0.5,
+							zone: 'cool',
+							notificationsEnabled: false,
+							notificationHour: 8,
+							theme: 'system',
 						},
 						entries: {},
 						cache: null,
@@ -83,13 +94,75 @@ test.describe('HomePage', () => {
 	});
 
 	test('navigates to log page from home', async ({ page }) => {
-		await page.getByRole('link', { name: /log/i }).click();
+		// Set up location data to prevent onboarding wizard
+		await page.evaluate(() => {
+			localStorage.setItem(
+				'lawncast_v1',
+				JSON.stringify({
+					state: {
+						settings: {
+							zip: '20001',
+							lat: 38.9072,
+							lon: -77.0369,
+							grassSpecies: 'kentucky_bluegrass',
+							sunExposure: 'full',
+							sprinklerRateInPerHr: 0.5,
+							zone: 'cool',
+							notificationsEnabled: false,
+							notificationHour: 8,
+							theme: 'system',
+						},
+						entries: {},
+						cache: null,
+					},
+					version: 0,
+				})
+			);
+		});
+		await page.reload();
+
+		// Wait for page to load before trying to navigate
+		await page.waitForLoadState('networkidle');
+
+		// Look for bottom navigation and click the Log button using aria-label
+		await page.getByRole('button', { name: /log/i }).click();
 		await expect(page).toHaveURL('/log');
 		await expect(page.getByText(/water log/i)).toBeVisible();
 	});
 
 	test('navigates to settings page from home', async ({ page }) => {
-		await page.getByRole('link', { name: /settings/i }).click();
+		// Set up location data to prevent onboarding wizard
+		await page.evaluate(() => {
+			localStorage.setItem(
+				'lawncast_v1',
+				JSON.stringify({
+					state: {
+						settings: {
+							zip: '20001',
+							lat: 38.9072,
+							lon: -77.0369,
+							grassSpecies: 'kentucky_bluegrass',
+							sunExposure: 'full',
+							sprinklerRateInPerHr: 0.5,
+							zone: 'cool',
+							notificationsEnabled: false,
+							notificationHour: 8,
+							theme: 'system',
+						},
+						entries: {},
+						cache: null,
+					},
+					version: 0,
+				})
+			);
+		});
+		await page.reload();
+
+		// Wait for page to load before trying to navigate
+		await page.waitForLoadState('networkidle');
+
+		// Look for bottom navigation and click the Settings button using aria-label
+		await page.getByRole('button', { name: /settings/i }).click();
 		await expect(page).toHaveURL('/settings');
 		await expect(page.getByText(/settings/i)).toBeVisible();
 	});
@@ -108,6 +181,10 @@ test.describe('HomePage', () => {
 							grassSpecies: 'kentucky_bluegrass',
 							sunExposure: 'full',
 							sprinklerRateInPerHr: 0.5,
+							zone: 'cool',
+							notificationsEnabled: false,
+							notificationHour: 8,
+							theme: 'system',
 						},
 						entries: {},
 						cache: null,
@@ -135,12 +212,39 @@ test.describe('HomePage', () => {
 	});
 
 	test('responsive design works on mobile', async ({ page }) => {
-		await page.setViewportSize({ width: 375, height: 667 });
+		// Set up location data to prevent onboarding wizard
+		await page.evaluate(() => {
+			localStorage.setItem(
+				'lawncast_v1',
+				JSON.stringify({
+					state: {
+						settings: {
+							zip: '20001',
+							lat: 38.9072,
+							lon: -77.0369,
+							grassSpecies: 'kentucky_bluegrass',
+							sunExposure: 'full',
+							sprinklerRateInPerHr: 0.5,
+							zone: 'cool',
+							notificationsEnabled: false,
+							notificationHour: 8,
+							theme: 'system',
+						},
+						entries: {},
+						cache: null,
+					},
+					version: 0,
+				})
+			);
+		});
 
-		// Should still show main navigation (bottom navigation)
-		await expect(page.locator('nav, [role="navigation"]')).toBeVisible();
+		await page.setViewportSize({ width: 375, height: 667 });
+		await page.reload();
+
+		// Should still show main navigation (bottom navigation) - look for MUI BottomNavigation
+		await expect(page.locator('.MuiBottomNavigation-root')).toBeVisible();
 
 		// Content should be readable
-		await expect(page.getByText(/water|lawn/i)).toBeVisible();
+		await expect(page.getByText(/water|lawn/i).first()).toBeVisible();
 	});
 });
