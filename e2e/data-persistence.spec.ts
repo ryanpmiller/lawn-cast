@@ -46,19 +46,26 @@ test.describe('Data Persistence', () => {
 		});
 
 		await page.goto('/log');
+		await expect(page.getByText(/water log/i)).toBeVisible();
 
-		// Add some watering entries
-		const inputs = page.locator('input[type="number"]');
-		await inputs.first().fill('30');
-		await inputs.nth(1).fill('45');
+		// Add some watering entries by clicking edit buttons
+		await page.getByLabel(/add\/edit minutes/i).first().click();
+		let input = page.getByRole('spinbutton');
+		await input.fill('30');
+		await input.blur();
+
+		await page.getByLabel(/add\/edit minutes/i).nth(1).click();
+		input = page.getByRole('spinbutton');
+		await input.fill('45');
+		await input.blur();
 
 		// Navigate away and back
 		await page.getByRole('link', { name: /home/i }).click();
 		await page.getByRole('link', { name: /log/i }).click();
 
-		// Entries should persist
-		await expect(inputs.first()).toHaveValue('30');
-		await expect(inputs.nth(1)).toHaveValue('45');
+		// Entries should persist (displayed as text)
+		await expect(page.getByText(/30 min/i)).toBeVisible();
+		await expect(page.getByText(/45 min/i)).toBeVisible();
 	});
 
 	test('maintains theme selection across sessions', async ({ page }) => {
@@ -121,8 +128,9 @@ test.describe('Data Persistence', () => {
 
 		// Check log page is also cleared
 		await page.goto('/log');
-		const inputs = page.locator('input[type="number"]');
-		await expect(inputs.first()).toHaveValue('');
+		await expect(page.getByText(/water log/i)).toBeVisible();
+		// Should not show any logged minutes
+		await expect(page.getByText(/\d+ min/)).not.toBeVisible();
 	});
 
 	test('handles corrupted localStorage gracefully', async ({ page }) => {

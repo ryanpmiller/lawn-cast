@@ -17,10 +17,9 @@ test.describe('Onboarding Wizard (Mobile)', () => {
 		).toBeVisible();
 		// Click 'Enter ZIP manually'
 		await page.getByRole('button', { name: /enter zip manually/i }).click();
-		// Type ZIP and select first option
+		// Type ZIP and continue
 		await page.getByLabel('ZIP code').fill('90210');
-		await page.waitForTimeout(800); // Wait for debounce/autocomplete
-		await page.getByRole('option').first().click();
+		await page.getByRole('button', { name: /continue/i }).click();
 		// Step 2: Sun exposure
 		await expect(
 			page.getByRole('dialog', { name: /step 2/i })

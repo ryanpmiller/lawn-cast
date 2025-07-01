@@ -13,8 +13,9 @@ async function setOffline(page: Page, offline: boolean) {
 
 test.describe('Log Tab CRUD', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/');
-		await page.getByRole('button', { name: /log/i }).click();
+		await page.goto('/log');
+		// Wait for the page to load
+		await expect(page.getByText(/water log/i)).toBeVisible();
 	});
 
 	test('renders week table', async ({ page }) => {
@@ -32,19 +33,20 @@ test.describe('Log Tab CRUD', () => {
 	});
 
 	test("can edit a day's minutes", async ({ page }) => {
-		await page.getByLabel('Edit minutes for Monday').click();
-		const input = page.getByRole('spinbutton', { name: 'Minutes' });
+		// Click the add/edit button for the first day
+		await page.getByLabel(/add\/edit minutes/i).first().click();
+		const input = page.getByRole('spinbutton');
 		await input.fill('42');
-		await page.getByRole('button', { name: /save/i }).click();
-		await expect(page.getByText('Monday')).toBeVisible();
-		await expect(page.getByText('42')).toBeVisible();
+		// Blur the input to save (no explicit save button)
+		await input.blur();
+		await expect(page.getByText(/42 min/i)).toBeVisible();
 	});
 
 	test('shows validation for out-of-range input', async ({ page }) => {
-		await page.getByLabel('Edit minutes for Tuesday').click();
-		const input = page.getByRole('spinbutton', { name: 'Minutes' });
+		await page.getByLabel(/add\/edit minutes/i).nth(1).click();
+		const input = page.getByRole('spinbutton');
 		await input.fill('999');
-		await page.getByRole('button', { name: /save/i }).click();
+		await input.blur();
 		await expect(
 			page.getByText(/enter a value between 0 and 240/i)
 		).toBeVisible();
@@ -52,7 +54,7 @@ test.describe('Log Tab CRUD', () => {
 
 	test('disables edits when offline', async ({ page }) => {
 		await setOffline(page, true);
-		const editBtn = page.getByLabel('Edit minutes for Wednesday');
+		const editBtn = page.getByLabel(/add\/edit minutes/i).nth(2);
 		await expect(editBtn).toBeDisabled();
 		await setOffline(page, false);
 	});

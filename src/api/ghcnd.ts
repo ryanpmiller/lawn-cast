@@ -16,7 +16,11 @@ interface DataRecord {
 }
 
 async function apiGet<T>(endpoint: string): Promise<T> {
-	if (!TOKEN) throw new Error('NCEI token missing (VITE_NCEI_TOKEN)');
+	if (!TOKEN) {
+		throw new Error(
+			'NCEI token missing (VITE_NCEI_TOKEN). Get your free token from: https://www.ncei.noaa.gov/cdo-web/token'
+		);
+	}
 	return fetchJson<T>(endpoint, { headers: { token: TOKEN } });
 }
 

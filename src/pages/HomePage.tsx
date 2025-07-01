@@ -156,8 +156,6 @@ export default function HomePage() {
 			setDecision(result);
 			setLoading(false);
 		}, 500);
-		// Cache log for debugging
-		// console.log('cache', cache);
 	}, [cache, entries, settings]);
 
 	return (

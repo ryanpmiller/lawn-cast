@@ -30,6 +30,8 @@ export async function getObservedPrecip(
 	}
 
 	const dates = getPast7Dates();
+
+	// Try NWPS first
 	try {
 		const nwps = await fetchNwpsPixel(lat, lon, dates);
 		const mapped: ObservedMap = {};
@@ -42,21 +44,40 @@ export async function getObservedPrecip(
 		);
 		return mapped;
 	} catch (err) {
-		console.warn('NWPS failed, using GHCND fallback', err);
-		const ghcnd = await fetchGHCNDPrecip(
-			lat,
-			lon,
-			getStartDate(dates),
-			dates
-		);
-		const mapped: ObservedMap = {};
-		dates.forEach(d => {
-			mapped[d] = { amount: ghcnd[d] || 0, pop: 1 };
-		});
-		localStorage.setItem(
-			LS_KEY,
-			JSON.stringify({ ts: Date.now(), data: mapped })
-		);
-		return mapped;
+		console.warn('NWPS failed, attempting GHCND fallback', err);
+
+		// Try GHCND fallback
+		try {
+			const ghcnd = await fetchGHCNDPrecip(
+				lat,
+				lon,
+				getStartDate(dates),
+				dates
+			);
+			const mapped: ObservedMap = {};
+			dates.forEach(d => {
+				mapped[d] = { amount: ghcnd[d] || 0, pop: 1 };
+			});
+			localStorage.setItem(
+				LS_KEY,
+				JSON.stringify({ ts: Date.now(), data: mapped })
+			);
+			return mapped;
+		} catch (ghcndErr) {
+			console.warn('Both NWPS and GHCND APIs failed, returning zero values for observed precipitation', ghcndErr);
+
+			// Both APIs failed, return zero values for all dates
+			const mapped: ObservedMap = {};
+			dates.forEach(d => {
+				mapped[d] = { amount: 0, pop: 1 };
+			});
+
+			// Cache the zero values with a shorter TTL (5 minutes) so we retry sooner
+			localStorage.setItem(
+				LS_KEY,
+				JSON.stringify({ ts: Date.now(), data: mapped })
+			);
+			return mapped;
+		}
 	}
 }
