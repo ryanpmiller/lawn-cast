@@ -24,11 +24,11 @@ describe('TypeScript domain types', () => {
 			notificationHour: 8,
 			theme: 'light',
 		};
-		const log: WaterLogEntry = { date: '2024-06-13', minutes: 30 };
+		const log: WaterLogEntry = { date: '2025-06-13', minutes: 30 };
 		const cache: WeatherCache = {
 			timestamp: Date.now(),
-			observedInches: { '2024-06-13': { amount: 0.1, pop: 1.0 } },
-			forecastInches: { '2024-06-14': { pop: 0.7, amount: 0.2 } },
+			observedInches: { '2025-06-13': { amount: 0.1, pop: 1.0 } },
+			forecastInches: { '2025-06-14': { pop: 0.7, amount: 0.2 } },
 		};
 		void zone;
 		void sun;
