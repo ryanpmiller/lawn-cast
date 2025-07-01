@@ -295,7 +295,7 @@ describe('OnboardingWizard', () => {
 			value: {
 				getCurrentPosition: vi
 					.fn()
-					.mockImplementation((success, error) => {
+					.mockImplementation((_success, error) => {
 						setTimeout(
 							() => error(new Error('Permission denied')),
 							100

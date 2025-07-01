@@ -312,7 +312,7 @@ export default function OnboardingWizard({
 							const val = parseFloat(e.target.value);
 							setSprinklerRate(val);
 							setRateError(
-								val > 0 && val < 2
+								!isNaN(val) && val >= 0.1 && val <= 2.0
 									? ''
 									: 'Enter a value between 0.1 and 2.0'
 							);
