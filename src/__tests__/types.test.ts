@@ -23,6 +23,7 @@ describe('TypeScript domain types', () => {
 			notificationsEnabled: true,
 			notificationHour: 8,
 			theme: 'light',
+			onboardingComplete: false,
 		};
 		const log: WaterLogEntry = { date: '2025-06-13', minutes: 30 };
 		const cache: WeatherCache = {
