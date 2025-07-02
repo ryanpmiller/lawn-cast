@@ -6,7 +6,7 @@ import {
 	useLocation,
 	useNavigate,
 } from 'react-router-dom';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { ThemeProvider, CssBaseline, Paper, Box } from '@mui/material';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
@@ -17,7 +17,6 @@ import HomePage from './pages/HomePage';
 import LogPage from './pages/LogPage';
 import SettingsPage from './pages/SettingsPage';
 import getTheme from './theme';
-import OnboardingWizard from './components/OnboardingWizard';
 import { useLawnCastStore } from './models/store';
 
 function MuiBottomNav() {
@@ -60,7 +59,6 @@ function MuiBottomNav() {
 
 function App() {
 	const settings = useLawnCastStore(s => s.settings);
-	const [onboardingOpen, setOnboardingOpen] = useState(false);
 
 	// Support 'system' theme by detecting system preference
 	const prefersDark = window.matchMedia(
@@ -77,12 +75,6 @@ function App() {
 		[themeMode]
 	);
 
-	useEffect(() => {
-		if (!settings.zone) {
-			setOnboardingOpen(true);
-		}
-	}, [settings.zone]);
-
 	return (
 		<ThemeProvider theme={theme}>
 			<CssBaseline />
@@ -94,10 +86,6 @@ function App() {
 						<Route path="/settings" element={<SettingsPage />} />
 						<Route path="*" element={<Navigate to="/" replace />} />
 					</Routes>
-					<OnboardingWizard
-						open={onboardingOpen}
-						onClose={() => setOnboardingOpen(false)}
-					/>
 				</Box>
 				<MuiBottomNav />
 			</Router>

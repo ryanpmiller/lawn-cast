@@ -4,7 +4,7 @@ test.describe('BottomNavigation', () => {
 	test('navigates between Home, Log, and Settings', async ({ page }) => {
 		await page.goto('/');
 
-		// Set up location data so navigation is available
+		// Set up location data with completed onboarding so navigation is available
 		await page.evaluate(() => {
 			localStorage.setItem(
 				'lawncast_v1',
@@ -17,6 +17,11 @@ test.describe('BottomNavigation', () => {
 							grassSpecies: 'kentucky_bluegrass',
 							sunExposure: 'full',
 							sprinklerRateInPerHr: 0.5,
+							zone: 'cool',
+							notificationsEnabled: false,
+							notificationHour: 8,
+							theme: 'system',
+							onboardingComplete: true,
 						},
 						entries: {},
 						cache: null,
@@ -30,7 +35,9 @@ test.describe('BottomNavigation', () => {
 
 		// Check we're on home page by URL and content
 		await expect(page).toHaveURL('/');
-		await expect(page.getByText(/water|progress/i)).toBeVisible({
+		await expect(
+			page.getByRole('heading', { name: /water today|no need to water/i })
+		).toBeVisible({
 			timeout: 10000,
 		});
 
@@ -47,6 +54,8 @@ test.describe('BottomNavigation', () => {
 
 		await page.goto('/');
 		await expect(page).toHaveURL('/');
-		await expect(page.getByText(/water|progress/i)).toBeVisible();
+		await expect(
+			page.getByRole('heading', { name: /water today|no need to water/i })
+		).toBeVisible();
 	});
 });

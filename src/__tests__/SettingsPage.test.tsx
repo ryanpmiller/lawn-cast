@@ -49,9 +49,9 @@ describe('SettingsPage form/state sync', () => {
 
 	it('updates sprinkler rate', async () => {
 		render(<SettingsPage />);
-		const input = screen.getByLabelText(/sprinkler rate/i);
+		const slider = screen.getByRole('slider');
 		await act(async () => {
-			fireEvent.change(input, { target: { value: '1.2' } });
+			fireEvent.change(slider, { target: { value: '1.2' } });
 		});
 		expect(useLawnCastStore.getState().settings.sprinklerRateInPerHr).toBe(
 			1.2

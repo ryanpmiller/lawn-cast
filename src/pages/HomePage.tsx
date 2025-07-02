@@ -19,6 +19,7 @@ import StackedProgressBar from '../components/StackedProgressBar';
 import ExplanationSection from '../components/ExplanationSection';
 import PageLayout from '../components/PageLayout';
 import { StyledPaper } from '../components/ui/StyledPaper';
+import InlineOnboarding from '../components/InlineOnboarding';
 import { getPrecip } from '../api/nws';
 import { getObservedPrecip } from '../api/observedPrecip';
 import { format, startOfWeek, endOfWeek, isBefore } from 'date-fns';
@@ -48,15 +49,15 @@ export default function HomePage() {
 	const cache = useLawnCastStore(s => s.cache);
 
 	useEffect(() => {
-		// Clear cache when location changes to ensure fresh data for new location
+		// Clear weather cache when location changes to ensure fresh data for new location
 		if (settings.lat && settings.lon && settings.zip) {
 			const cache = useLawnCastStore.getState().cache;
 			if (cache) {
 				// Clear the weather cache to force fresh data fetch for new location
 				useLawnCastStore.getState().setCache(null);
 			}
-			// Also clear the observed precipitation cache from localStorage
-			localStorage.removeItem('observedPrecip_v1');
+			// Note: observed precipitation cache now uses location-specific keys,
+			// so no need to manually clear it - different locations will have different cache keys
 		}
 	}, [settings.lat, settings.lon, settings.zip]);
 
@@ -189,214 +190,231 @@ export default function HomePage() {
 
 	return (
 		<PageLayout title="Home" alignItems="center" titleAlign="center">
-			<StyledPaper variant="card">
-				{loading ? (
-					<Skeleton
-						variant="rectangular"
-						height={240}
-						animation="wave"
-						sx={{ borderRadius: 3 }}
-					/>
-				) : (
-					decision && (
-						<DecisionCard
-							decision={decision.decision}
-							totalProjected={decision.totalProjected}
-							weeklyTarget={decision.weeklyTarget}
-						/>
-					)
-				)}
-			</StyledPaper>
-			<StyledPaper variant="progress">
-				{loading ? (
-					<Skeleton
-						variant="rounded"
-						height={36}
-						width="100%"
-						animation="wave"
-						sx={{ borderRadius: 3 }}
-					/>
-				) : (
-					decision && (
-						<StackedProgressBar
-							{...calculateWaterAmounts(
-								cache,
-								entries,
-								settings.sprinklerRateInPerHr
-							)}
-							weeklyTarget={decision.weeklyTarget}
-						/>
-					)
-				)}
-			</StyledPaper>
-			<StyledPaper variant="section">
-				{loading ? (
-					<Box sx={{ p: { xs: 2, sm: 3 } }}>
-						{/* Title skeleton */}
-						<Skeleton
-							width="60%"
-							height={28}
-							animation="wave"
-							sx={{ mb: 1 }}
-						/>
-
-						{/* Description skeleton */}
-						<Skeleton
-							width="100%"
-							height={20}
-							animation="wave"
-							sx={{ mb: 0.5 }}
-						/>
-						<Skeleton
-							width="100%"
-							height={20}
-							animation="wave"
-							sx={{ mb: 0.5 }}
-						/>
-						<Skeleton
-							width="25%"
-							height={20}
-							animation="wave"
-							sx={{ mb: 2 }}
-						/>
-
-						{/* Breakdown cards skeleton */}
-						<Stack
-							direction="row"
-							spacing={2}
-							justifyContent="space-between"
-							sx={{ mb: 2 }}
-						>
-							{[1, 2, 3].map(i => (
-								<Stack
-									key={i}
-									alignItems="center"
-									spacing={0.5}
-									minWidth={72}
-								>
-									<Skeleton
-										width={48}
-										height={16}
-										animation="wave"
-									/>
-									<Skeleton
-										variant="rounded"
-										width={70}
-										height={40}
-										animation="wave"
-										sx={{ borderRadius: 2 }}
-									/>
-								</Stack>
-							))}
-						</Stack>
-
-						{/* Footer text skeleton */}
-						<Skeleton width="70%" height={16} animation="wave" />
-					</Box>
-				) : (
-					decision && (
-						<>
-							<ExplanationSection
-								decision={decision}
-								{...calculateWaterAmounts(
-									cache,
-									entries,
-									settings.sprinklerRateInPerHr
-								)}
+			{!settings.onboardingComplete ? (
+				<InlineOnboarding />
+			) : (
+				<>
+					<StyledPaper variant="card">
+						{loading ? (
+							<Skeleton
+								variant="rectangular"
+								height={240}
+								animation="wave"
+								sx={{ borderRadius: 3 }}
 							/>
-							{cache?.forecastInches &&
-								Object.keys(cache.forecastInches).length >
-									0 && (
-									<Box sx={{ mt: 3 }}>
-										<Typography
-											variant="subtitle2"
-											fontWeight={600}
-											gutterBottom
+						) : (
+							decision && (
+								<DecisionCard
+									decision={decision.decision}
+									totalProjected={decision.totalProjected}
+									weeklyTarget={decision.weeklyTarget}
+								/>
+							)
+						)}
+					</StyledPaper>
+					<StyledPaper variant="progress">
+						{loading ? (
+							<Skeleton
+								variant="rounded"
+								height={36}
+								width="100%"
+								animation="wave"
+								sx={{ borderRadius: 3 }}
+							/>
+						) : (
+							decision && (
+								<StackedProgressBar
+									{...calculateWaterAmounts(
+										cache,
+										entries,
+										settings.sprinklerRateInPerHr
+									)}
+									weeklyTarget={decision.weeklyTarget}
+								/>
+							)
+						)}
+					</StyledPaper>
+					<StyledPaper variant="section">
+						{loading ? (
+							<Box sx={{ p: { xs: 2, sm: 3 } }}>
+								{/* Title skeleton */}
+								<Skeleton
+									width="60%"
+									height={28}
+									animation="wave"
+									sx={{ mb: 1 }}
+								/>
+
+								{/* Description skeleton */}
+								<Skeleton
+									width="100%"
+									height={20}
+									animation="wave"
+									sx={{ mb: 0.5 }}
+								/>
+								<Skeleton
+									width="100%"
+									height={20}
+									animation="wave"
+									sx={{ mb: 0.5 }}
+								/>
+								<Skeleton
+									width="25%"
+									height={20}
+									animation="wave"
+									sx={{ mb: 2 }}
+								/>
+
+								{/* Breakdown cards skeleton */}
+								<Stack
+									direction="row"
+									spacing={2}
+									justifyContent="space-between"
+									sx={{ mb: 2 }}
+								>
+									{[1, 2, 3].map(i => (
+										<Stack
+											key={i}
+											alignItems="center"
+											spacing={0.5}
+											minWidth={72}
 										>
-											Forecast Breakdown
-										</Typography>
-										<TableContainer>
-											<Table
-												size="small"
-												aria-label="Forecast breakdown"
-											>
-												<TableHead>
-													<TableRow>
-														<TableCell>
-															Day
-														</TableCell>
-														<TableCell align="right">
-															Amount (in)
-														</TableCell>
-														<TableCell align="right">
-															Probability
-														</TableCell>
-													</TableRow>
-												</TableHead>
-												<TableBody>
-													{Object.entries(
-														cache.forecastInches
-													).map(
-														([
-															date,
-															{ amount, pop },
-														]) => (
-															<TableRow
-																key={date}
-																sx={
-																	pop >= 0.6
-																		? {
-																				bgcolor:
-																					'grey.500',
-																				'& td': {
-																					color: 'white',
-																					fontWeight: 700,
-																				},
-																			}
-																		: {}
-																}
-															>
+											<Skeleton
+												width={48}
+												height={16}
+												animation="wave"
+											/>
+											<Skeleton
+												variant="rounded"
+												width={70}
+												height={40}
+												animation="wave"
+												sx={{ borderRadius: 2 }}
+											/>
+										</Stack>
+									))}
+								</Stack>
+
+								{/* Footer text skeleton */}
+								<Skeleton
+									width="70%"
+									height={16}
+									animation="wave"
+								/>
+							</Box>
+						) : (
+							decision && (
+								<>
+									<ExplanationSection
+										decision={decision}
+										{...calculateWaterAmounts(
+											cache,
+											entries,
+											settings.sprinklerRateInPerHr
+										)}
+									/>
+									{cache?.forecastInches &&
+										Object.keys(cache.forecastInches)
+											.length > 0 && (
+											<Box sx={{ mt: 3 }}>
+												<Typography
+													variant="subtitle2"
+													fontWeight={600}
+													gutterBottom
+												>
+													Forecast Breakdown
+												</Typography>
+												<TableContainer>
+													<Table
+														size="small"
+														aria-label="Forecast breakdown"
+													>
+														<TableHead>
+															<TableRow>
 																<TableCell>
-																	{formatDayName(
-																		date
-																	)}
+																	Day
 																</TableCell>
 																<TableCell align="right">
-																	{amount.toFixed(
-																		2
-																	)}
+																	Amount (in)
 																</TableCell>
 																<TableCell align="right">
-																	{Math.round(
-																		pop *
-																			100
-																	)}
-																	%
+																	Probability
 																</TableCell>
 															</TableRow>
-														)
-													)}
-												</TableBody>
-											</Table>
-										</TableContainer>
-										<Typography
-											variant="caption"
-											color="text.secondary"
-											sx={{
-												mt: 1,
-												mb: 1,
-												display: 'block',
-											}}
-										>
-											Highlighted rows are included in the
-											forecast total (≥60% probability).
-										</Typography>
-									</Box>
-								)}
-						</>
-					)
-				)}
-			</StyledPaper>
+														</TableHead>
+														<TableBody>
+															{Object.entries(
+																cache.forecastInches
+															).map(
+																([
+																	date,
+																	{
+																		amount,
+																		pop,
+																	},
+																]) => (
+																	<TableRow
+																		key={
+																			date
+																		}
+																		sx={
+																			pop >=
+																			0.6
+																				? {
+																						bgcolor:
+																							'grey.500',
+																						'& td': {
+																							color: 'white',
+																							fontWeight: 700,
+																						},
+																					}
+																				: {}
+																		}
+																	>
+																		<TableCell>
+																			{formatDayName(
+																				date
+																			)}
+																		</TableCell>
+																		<TableCell align="right">
+																			{amount.toFixed(
+																				2
+																			)}
+																		</TableCell>
+																		<TableCell align="right">
+																			{Math.round(
+																				pop *
+																					100
+																			)}
+																			%
+																		</TableCell>
+																	</TableRow>
+																)
+															)}
+														</TableBody>
+													</Table>
+												</TableContainer>
+												<Typography
+													variant="caption"
+													color="text.secondary"
+													sx={{
+														mt: 1,
+														mb: 1,
+														display: 'block',
+													}}
+												>
+													Highlighted rows are
+													included in the forecast
+													total (≥60% probability).
+												</Typography>
+											</Box>
+										)}
+								</>
+							)
+						)}
+					</StyledPaper>
+				</>
+			)}
 		</PageLayout>
 	);
 }

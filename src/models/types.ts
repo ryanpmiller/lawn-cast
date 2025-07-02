@@ -19,6 +19,7 @@ export interface Settings {
 	notificationsEnabled: boolean;
 	notificationHour: number; // 0‑23, default 8
 	theme: 'light' | 'dark' | 'system';
+	onboardingComplete: boolean;
 }
 
 export interface WaterLogEntry {

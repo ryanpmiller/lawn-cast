@@ -40,6 +40,8 @@ describe('getObservedPrecip', () => {
 		const cacheEntry = {
 			ts: Date.now() - 1000, // 1 second ago
 			data: cachedData,
+			lat: mockLat,
+			lon: mockLon,
 		};
 
 		mockLocalStorage.getItem.mockReturnValue(JSON.stringify(cacheEntry));
@@ -98,7 +100,7 @@ describe('getObservedPrecip', () => {
 		});
 
 		expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-			'observedPrecip_v1',
+			'observedPrecip_v2_39.046_-76.641',
 			expect.stringContaining('"ts":')
 		);
 	});
@@ -183,7 +185,7 @@ describe('getObservedPrecip', () => {
 
 		// Should still cache the zero values (with shorter TTL)
 		expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-			'observedPrecip_v1',
+			'observedPrecip_v2_39.046_-76.641',
 			expect.stringContaining('"ts":')
 		);
 	});

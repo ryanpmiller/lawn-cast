@@ -8,7 +8,7 @@ test.describe('Data Persistence', () => {
 	});
 
 	test('persists settings across page refreshes', async ({ page }) => {
-		// Set up basic location to prevent onboarding wizard
+		// Set up basic location with completed onboarding
 		await page.evaluate(() => {
 			localStorage.setItem(
 				'lawncast_v1',
@@ -25,6 +25,7 @@ test.describe('Data Persistence', () => {
 							notificationsEnabled: false,
 							notificationHour: 8,
 							theme: 'system',
+							onboardingComplete: true,
 						},
 						entries: {},
 						cache: null,
@@ -39,21 +40,22 @@ test.describe('Data Persistence', () => {
 		// Set up some settings
 		const zipInput = page.getByLabel(/update zip code/i);
 		await zipInput.fill('90210');
-		await zipInput.blur();
+		await page.getByRole('button', { name: /save/i }).click();
 
-		const rateInput = page.getByLabel(/sprinkler rate/i);
-		await rateInput.fill('0.8');
+		// Update sprinkler rate using slider
+		const slider = page.locator('input[type="range"]');
+		await slider.fill('0.8');
 
 		// Refresh the page
 		await page.reload();
 
 		// Settings should persist
 		await expect(page.getByLabel(/update zip code/i)).toHaveValue('90210');
-		await expect(page.getByLabel(/sprinkler rate/i)).toHaveValue('0.8');
+		await expect(page.locator('input[type="range"]')).toHaveValue('0.8');
 	});
 
 	test('persists water log entries across navigation', async ({ page }) => {
-		// Set up location first
+		// Set up location with completed onboarding
 		await page.evaluate(() => {
 			localStorage.setItem(
 				'lawncast_v1',
@@ -70,6 +72,7 @@ test.describe('Data Persistence', () => {
 							notificationsEnabled: false,
 							notificationHour: 8,
 							theme: 'system',
+							onboardingComplete: true,
 						},
 						entries: {},
 						cache: null,
@@ -109,7 +112,7 @@ test.describe('Data Persistence', () => {
 	});
 
 	test('maintains theme selection across sessions', async ({ page }) => {
-		// Set up location to prevent onboarding wizard
+		// Set up location with completed onboarding
 		await page.evaluate(() => {
 			localStorage.setItem(
 				'lawncast_v1',
@@ -126,6 +129,7 @@ test.describe('Data Persistence', () => {
 							notificationsEnabled: false,
 							notificationHour: 8,
 							theme: 'system',
+							onboardingComplete: true,
 						},
 						entries: {},
 						cache: null,
@@ -151,7 +155,7 @@ test.describe('Data Persistence', () => {
 	});
 
 	test('clears all data when requested', async ({ page }) => {
-		// Set up some data
+		// Set up some data with completed onboarding
 		await page.evaluate(() => {
 			localStorage.setItem(
 				'lawncast_v1',
@@ -168,6 +172,7 @@ test.describe('Data Persistence', () => {
 							notificationsEnabled: false,
 							notificationHour: 8,
 							theme: 'system',
+							onboardingComplete: true,
 						},
 						entries: {
 							'2025-01-01': { date: '2025-01-01', minutes: 30 },
@@ -183,7 +188,7 @@ test.describe('Data Persistence', () => {
 
 		// Verify data exists
 		await expect(page.getByLabel(/update zip code/i)).toHaveValue('20001');
-		await expect(page.getByLabel(/sprinkler rate/i)).toHaveValue('0.8');
+		await expect(page.locator('input[type="range"]')).toHaveValue('0.8');
 
 		// Find and click the clear all data button (should be in danger zone section)
 		await page.getByRole('button', { name: /clear all data/i }).click();
@@ -196,7 +201,7 @@ test.describe('Data Persistence', () => {
 
 		// Data should be cleared
 		await expect(page.getByLabel(/update zip code/i)).toHaveValue('');
-		await expect(page.getByLabel(/sprinkler rate/i)).toHaveValue('0.5'); // Default value
+		await expect(page.locator('input[type="range"]')).toHaveValue('0.5'); // Default value
 
 		// Check log page is also cleared
 		await page.goto('/log');
@@ -214,8 +219,10 @@ test.describe('Data Persistence', () => {
 
 		await page.goto('/');
 
-		// App should still load without crashing
-		await expect(page.getByText(/lawn/i)).toBeVisible();
+		// App should still load without crashing - should show onboarding
+		await expect(
+			page.getByRole('heading', { name: /Welcome to LawnCast!/i })
+		).toBeVisible();
 	});
 
 	test('migrates data between app versions', async ({ page }) => {
@@ -232,7 +239,9 @@ test.describe('Data Persistence', () => {
 
 		await page.goto('/');
 
-		// App should handle version migration gracefully
-		await expect(page.getByText(/lawn/i)).toBeVisible();
+		// App should handle version migration gracefully - should show onboarding
+		await expect(
+			page.getByRole('heading', { name: /Welcome to LawnCast!/i })
+		).toBeVisible();
 	});
 });

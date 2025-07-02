@@ -34,6 +34,7 @@ const defaultSettings: Settings = {
 	notificationsEnabled: false,
 	notificationHour: 8,
 	theme: 'system',
+	onboardingComplete: false,
 };
 
 export const useLawnCastStore = create<

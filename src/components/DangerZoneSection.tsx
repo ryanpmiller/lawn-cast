@@ -1,7 +1,6 @@
 import {
 	Box,
 	Button,
-	Alert,
 	Dialog,
 	DialogTitle,
 	DialogContent,
@@ -13,13 +12,10 @@ import { useLawnCastStore } from '../models/store';
 export default function DangerZoneSection() {
 	const reset = useLawnCastStore(s => s.reset);
 	const [open, setOpen] = useState(false);
-	const [success, setSuccess] = useState(false);
 
 	const handleClear = () => {
 		reset();
 		setOpen(false);
-		setSuccess(true);
-		setTimeout(() => setSuccess(false), 2000);
 	};
 
 	return (
@@ -48,11 +44,6 @@ export default function DangerZoneSection() {
 					</Button>
 				</DialogActions>
 			</Dialog>
-			{success && (
-				<Alert severity="success" sx={{ mt: 2 }}>
-					All data cleared!
-				</Alert>
-			)}
 		</Box>
 	);
 }

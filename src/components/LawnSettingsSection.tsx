@@ -1,33 +1,19 @@
-import {
-	Box,
-	Stack,
-	Typography,
-	TextField,
-	Alert,
-	Button,
-	MenuItem,
-} from '@mui/material';
+import { Box, Stack, Typography, TextField, MenuItem } from '@mui/material';
 import { useLawnCastStore } from '../models/store';
 import {
 	GRASS_SPECIES_OPTIONS,
 	SUN_EXPOSURE_OPTIONS,
 } from '../constants/options';
-import { useSuccessAlert } from '../hooks/useSuccessAlert';
 
 export default function LawnSettingsSection() {
 	const settings = useLawnCastStore(s => s.settings);
 	const update = useLawnCastStore(s => s.update);
-	const { success, showSuccess } = useSuccessAlert();
 
 	const handleSpeciesChange = (value: string) => {
 		update({ grassSpecies: value as typeof settings.grassSpecies });
 	};
 	const handleSunChange = (value: string) => {
 		update({ sunExposure: value as typeof settings.sunExposure });
-	};
-
-	const handleSave = () => {
-		showSuccess();
 	};
 
 	return (
@@ -75,14 +61,6 @@ export default function LawnSettingsSection() {
 					))}
 				</TextField>
 			</Stack>
-			<Button variant="contained" onClick={handleSave} sx={{ mt: 1 }}>
-				Save
-			</Button>
-			{success && (
-				<Alert severity="success" sx={{ mt: 2 }}>
-					Lawn settings updated!
-				</Alert>
-			)}
 		</Box>
 	);
 }

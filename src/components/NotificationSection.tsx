@@ -5,28 +5,18 @@ import {
 	FormControlLabel,
 	TextField,
 	MenuItem,
-	Alert,
 } from '@mui/material';
-import { useState } from 'react';
 import { useLawnCastStore } from '../models/store';
 
 export default function NotificationSection() {
 	const settings = useLawnCastStore(s => s.settings);
 	const update = useLawnCastStore(s => s.update);
-	const [success, setSuccess] = useState(false);
-
-	const showSuccess = () => {
-		setSuccess(true);
-		setTimeout(() => setSuccess(false), 2000);
-	};
 
 	const handleToggle = (checked: boolean) => {
 		update({ notificationsEnabled: checked });
-		showSuccess();
 	};
 	const handleHourChange = (value: number) => {
 		update({ notificationHour: value });
-		showSuccess();
 	};
 
 	return (
@@ -66,11 +56,6 @@ export default function NotificationSection() {
 						</MenuItem>
 					))}
 				</TextField>
-			)}
-			{success && (
-				<Alert severity="success" sx={{ mt: 2 }}>
-					Notification settings updated!
-				</Alert>
 			)}
 		</Box>
 	);

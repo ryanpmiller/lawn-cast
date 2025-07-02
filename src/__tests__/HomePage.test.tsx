@@ -3,6 +3,66 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import HomePage from '../pages/HomePage';
 import { useLawnCastStore } from '../models/store';
 
+// Mock PageLayout component to avoid complex rendering
+vi.mock('../components/PageLayout', () => ({
+	default: ({ children }: { children: React.ReactNode }) => (
+		<div data-testid="page-layout">{children}</div>
+	),
+}));
+
+// Mock InlineOnboarding component
+vi.mock('../components/InlineOnboarding', () => ({
+	default: () => (
+		<div data-testid="inline-onboarding">Onboarding Component</div>
+	),
+}));
+
+// Mock other components used in main app view
+vi.mock('../components/DecisionCard', () => ({
+	default: ({ decision }: { decision: string }) => (
+		<div data-testid="decision-card">
+			{decision === 'water' ? 'Yes, water today' : 'No need to water'}
+		</div>
+	),
+}));
+
+vi.mock('../components/StackedProgressBar', () => ({
+	default: () => (
+		<div role="progressbar" data-testid="progress-bar">
+			Progress Bar
+		</div>
+	),
+}));
+
+vi.mock('../components/ExplanationSection', () => ({
+	default: () => <div data-testid="explanation">Why this recommendation</div>,
+}));
+
+vi.mock('../components/ui/StyledPaper', () => ({
+	StyledPaper: ({ children }: { children: React.ReactNode }) => (
+		<div>{children}</div>
+	),
+}));
+
+// Mock Material-UI Skeleton component
+vi.mock('@mui/material', async () => {
+	const actual = await vi.importActual('@mui/material');
+	return {
+		...actual,
+		Skeleton: ({
+			children,
+			...props
+		}: {
+			children?: React.ReactNode;
+			[key: string]: unknown;
+		}) => (
+			<div className="MuiSkeleton-root" {...props}>
+				{children || 'Loading...'}
+			</div>
+		),
+	};
+});
+
 // Mock the APIs
 vi.mock('../api/nws', () => ({
 	getPrecip: vi.fn().mockResolvedValue({
@@ -20,7 +80,8 @@ vi.mock('../api/observedPrecip', () => ({
 
 beforeEach(() => {
 	useLawnCastStore.getState().reset();
-	// Set up realistic store state
+	// Set up realistic store state with onboarding complete by default
+	// Tests that specifically want to test onboarding will override this
 	useLawnCastStore.getState().update({
 		zip: '20001',
 		lat: 38.9072,
@@ -28,6 +89,7 @@ beforeEach(() => {
 		grassSpecies: 'kentucky_bluegrass',
 		sunExposure: 'full',
 		sprinklerRateInPerHr: 0.5,
+		onboardingComplete: true, // Default to completed onboarding for main app tests
 	});
 });
 
@@ -42,7 +104,7 @@ describe('HomePage', () => {
 		// Wait for content to load
 		await waitFor(
 			() => {
-				expect(screen.getByText(/water today/i)).toBeInTheDocument();
+				expect(screen.getByTestId('decision-card')).toBeInTheDocument();
 			},
 			{ timeout: 3000 }
 		);
@@ -57,14 +119,14 @@ describe('HomePage', () => {
 		expect(skeletons.length).toBe(0);
 
 		// Should not show decision content either
-		expect(screen.queryByText(/water today/i)).not.toBeInTheDocument();
+		expect(screen.queryByTestId('decision-card')).not.toBeInTheDocument();
 	});
 
 	it('displays watering decision card with recommendation', async () => {
 		render(<HomePage />);
 
 		await waitFor(() => {
-			expect(screen.getByText(/water today/i)).toBeInTheDocument();
+			expect(screen.getByTestId('decision-card')).toBeInTheDocument();
 		});
 	});
 
@@ -83,13 +145,13 @@ describe('HomePage', () => {
 		// Wait for content to load, then check for location
 		await waitFor(
 			() => {
-				expect(screen.getByText(/water today/i)).toBeInTheDocument();
+				expect(screen.getByTestId('decision-card')).toBeInTheDocument();
 			},
 			{ timeout: 3000 }
 		);
 
 		// Check that content loaded successfully (location might not be displayed in HomePage)
-		expect(screen.getByText(/water today/i)).toBeInTheDocument();
+		expect(screen.getByTestId('decision-card')).toBeInTheDocument();
 	});
 
 	it('handles loading state gracefully', () => {
@@ -106,7 +168,7 @@ describe('HomePage', () => {
 		// Wait for content to load
 		await waitFor(
 			() => {
-				expect(screen.getByText(/water today/i)).toBeInTheDocument();
+				expect(screen.getByTestId('decision-card')).toBeInTheDocument();
 			},
 			{ timeout: 3000 }
 		);
@@ -115,5 +177,44 @@ describe('HomePage', () => {
 		expect(
 			screen.getByText(/why this recommendation/i)
 		).toBeInTheDocument();
+	});
+
+	it('shows InlineOnboarding when onboardingComplete is false', () => {
+		// Override default to set onboardingComplete: false
+		useLawnCastStore.getState().update({ onboardingComplete: false });
+		render(<HomePage />);
+
+		expect(screen.getByTestId('inline-onboarding')).toBeInTheDocument();
+		expect(screen.queryByText('Decision')).not.toBeInTheDocument();
+	});
+
+	it('shows main app content when onboardingComplete is true', () => {
+		// Set onboarding as complete with valid location data
+		useLawnCastStore.getState().update({
+			onboardingComplete: true,
+			zip: '20001',
+			lat: 38.9072,
+			lon: -77.0369,
+		});
+
+		render(<HomePage />);
+
+		expect(
+			screen.queryByTestId('inline-onboarding')
+		).not.toBeInTheDocument();
+		// Should show loading skeleton initially since we're fetching weather data
+		expect(screen.getByTestId('page-layout')).toBeInTheDocument();
+	});
+
+	it('shows InlineOnboarding even with location data if onboardingComplete is false', () => {
+		// Override default to set onboardingComplete false (location data already set in beforeEach)
+		useLawnCastStore.getState().update({
+			onboardingComplete: false,
+		});
+
+		render(<HomePage />);
+
+		// Should still show onboarding because onboardingComplete is false
+		expect(screen.getByTestId('inline-onboarding')).toBeInTheDocument();
 	});
 });

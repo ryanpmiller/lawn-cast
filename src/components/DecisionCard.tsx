@@ -1,5 +1,6 @@
 import { Box, Typography } from '@mui/material';
-
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 export interface DecisionCardProps {
 	decision: 'yes' | 'no';
 	totalProjected: number;
@@ -13,9 +14,9 @@ export default function DecisionCard({
 }: DecisionCardProps) {
 	const deficit = Math.max(weeklyTarget - totalProjected, 0);
 	const isNo = decision === 'no';
-	const bg = isNo ? 'success.light' : 'warning.light';
-	const border = isNo ? 'success.main' : 'warning.main';
-	const text = isNo ? 'success.dark' : 'warning.dark';
+	const bg = isNo ? 'success.dark' : 'info.dark';
+	const border = isNo ? 'success.main' : 'info.main';
+	const text = 'white';
 	return (
 		<Box
 			sx={{
@@ -36,6 +37,11 @@ export default function DecisionCard({
 			role="region"
 			aria-label="Watering Recommendation"
 		>
+			{isNo ? (
+				<CheckCircleIcon sx={{ fontSize: 48 }} />
+			) : (
+				<WaterDropIcon sx={{ fontSize: 48 }} />
+			)}
 			<Typography variant="h5" fontWeight={700} gutterBottom>
 				{isNo ? 'No need to water' : 'Water today'}
 			</Typography>

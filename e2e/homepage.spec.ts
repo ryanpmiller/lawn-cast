@@ -5,14 +5,17 @@ test.describe('HomePage', () => {
 		await page.goto('/');
 	});
 
-	test('shows location setup when no location is configured', async ({
+	test('shows inline onboarding when no location is configured', async ({
 		page,
 	}) => {
 		// Clear any existing data
 		await page.evaluate(() => localStorage.clear());
 		await page.reload();
 
-		// Should show onboarding wizard when no location is set
+		// Should show inline onboarding when no location is set
+		await expect(page.getByText(/Welcome to LawnCast!/i)).toBeVisible({
+			timeout: 5000,
+		});
 		await expect(page.getByText(/set your location/i)).toBeVisible({
 			timeout: 5000,
 		});
@@ -21,7 +24,7 @@ test.describe('HomePage', () => {
 	test('displays watering recommendation when location is set', async ({
 		page,
 	}) => {
-		// Set up location data
+		// Set up location data with completed onboarding
 		await page.evaluate(() => {
 			localStorage.setItem(
 				'lawncast_v1',
@@ -38,6 +41,7 @@ test.describe('HomePage', () => {
 							notificationsEnabled: false,
 							notificationHour: 8,
 							theme: 'system',
+							onboardingComplete: true,
 						},
 						entries: {},
 						cache: null,
@@ -61,7 +65,7 @@ test.describe('HomePage', () => {
 	});
 
 	test('shows weather data and progress bar', async ({ page }) => {
-		// Set up location data
+		// Set up location data with completed onboarding
 		await page.evaluate(() => {
 			localStorage.setItem(
 				'lawncast_v1',
@@ -78,6 +82,7 @@ test.describe('HomePage', () => {
 							notificationsEnabled: false,
 							notificationHour: 8,
 							theme: 'system',
+							onboardingComplete: true,
 						},
 						entries: {},
 						cache: null,
@@ -98,7 +103,7 @@ test.describe('HomePage', () => {
 	});
 
 	test('navigates to log page from home', async ({ page }) => {
-		// Set up location data to prevent onboarding wizard
+		// Set up location data with completed onboarding
 		await page.evaluate(() => {
 			localStorage.setItem(
 				'lawncast_v1',
@@ -115,6 +120,7 @@ test.describe('HomePage', () => {
 							notificationsEnabled: false,
 							notificationHour: 8,
 							theme: 'system',
+							onboardingComplete: true,
 						},
 						entries: {},
 						cache: null,
@@ -135,7 +141,7 @@ test.describe('HomePage', () => {
 	});
 
 	test('navigates to settings page from home', async ({ page }) => {
-		// Set up location data to prevent onboarding wizard
+		// Set up location data with completed onboarding
 		await page.evaluate(() => {
 			localStorage.setItem(
 				'lawncast_v1',
@@ -152,6 +158,7 @@ test.describe('HomePage', () => {
 							notificationsEnabled: false,
 							notificationHour: 8,
 							theme: 'system',
+							onboardingComplete: true,
 						},
 						entries: {},
 						cache: null,
@@ -172,7 +179,7 @@ test.describe('HomePage', () => {
 	});
 
 	test('displays current location information', async ({ page }) => {
-		// Set up location data
+		// Set up location data with completed onboarding
 		await page.evaluate(() => {
 			localStorage.setItem(
 				'lawncast_v1',
@@ -189,6 +196,7 @@ test.describe('HomePage', () => {
 							notificationsEnabled: false,
 							notificationHour: 8,
 							theme: 'system',
+							onboardingComplete: true,
 						},
 						entries: {},
 						cache: null,
@@ -227,7 +235,7 @@ test.describe('HomePage', () => {
 	});
 
 	test('responsive design works on mobile', async ({ page }) => {
-		// Set up location data to prevent onboarding wizard
+		// Set up location data with completed onboarding
 		await page.evaluate(() => {
 			localStorage.setItem(
 				'lawncast_v1',
@@ -244,6 +252,7 @@ test.describe('HomePage', () => {
 							notificationsEnabled: false,
 							notificationHour: 8,
 							theme: 'system',
+							onboardingComplete: true,
 						},
 						entries: {},
 						cache: null,

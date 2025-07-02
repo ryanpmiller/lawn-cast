@@ -16,7 +16,7 @@ test.describe('Log Tab CRUD', () => {
 		// Navigate to page first to avoid localStorage security error
 		await page.goto('/');
 
-		// Set up location data to prevent onboarding wizard
+		// Set up location data with completed onboarding
 		await page.evaluate(() => {
 			localStorage.setItem(
 				'lawncast_v1',
@@ -33,6 +33,7 @@ test.describe('Log Tab CRUD', () => {
 							notificationsEnabled: false,
 							notificationHour: 8,
 							theme: 'system',
+							onboardingComplete: true,
 						},
 						entries: {},
 						cache: null,

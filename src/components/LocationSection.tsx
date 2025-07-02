@@ -1,5 +1,14 @@
-import { Box, Typography, TextField, Alert, Button } from '@mui/material';
+import {
+	Box,
+	Typography,
+	TextField,
+	Button,
+	Stack,
+	InputAdornment,
+	IconButton,
+} from '@mui/material';
 import { useState } from 'react';
+import ClearIcon from '@mui/icons-material/Clear';
 import { useLawnCastStore } from '../models/store';
 import { searchZipAutocomplete } from '../api/nominatim';
 
@@ -8,10 +17,18 @@ export default function LocationSection() {
 	const update = useLawnCastStore(s => s.update);
 	const [manualZipError, setManualZipError] = useState('');
 	const [zipLoading, setZipLoading] = useState(false);
-	const [success, setSuccess] = useState(false);
 
 	const handleManualZipChange = (value: string) => {
 		update({ zip: value });
+		// Clear any previous errors when user starts typing
+		if (manualZipError) {
+			setManualZipError('');
+		}
+	};
+
+	const handleClearZip = () => {
+		update({ zip: '' });
+		setManualZipError('');
 	};
 
 	const handleManualZipSave = async () => {
@@ -41,8 +58,6 @@ export default function LocationSection() {
 					lat: mapped[0].lat,
 					lon: mapped[0].lon,
 				});
-				setSuccess(true);
-				setTimeout(() => setSuccess(false), 2000);
 			} else {
 				setManualZipError('ZIP code not found.');
 			}
@@ -52,38 +67,54 @@ export default function LocationSection() {
 	};
 
 	return (
-		<Box sx={{ mb: 4 }}>
+		<Box sx={{ width: '100%', mb: 4 }}>
 			<Typography variant="h6" fontWeight={700} gutterBottom>
 				Location
 			</Typography>
-			<Typography variant="body2" sx={{ mb: 1 }}>
+			<Typography variant="body2" sx={{ mb: 2 }}>
 				Current ZIP: <b>{settings.zip || 'Not set'}</b>
 			</Typography>
-			<TextField
-				label="Update ZIP code"
-				variant="outlined"
-				fullWidth
-				value={settings.zip}
-				onChange={e => handleManualZipChange(e.target.value)}
-				onBlur={handleManualZipSave}
-				error={!!manualZipError}
-				helperText={manualZipError}
-				inputProps={{ maxLength: 5 }}
-				sx={{ maxWidth: 320, mt: 1 }}
-			/>
-			<Button
-				variant="contained"
-				onClick={handleManualZipSave}
-				disabled={zipLoading}
-				sx={{ mt: 1 }}
+			<Stack
+				direction="row"
+				spacing={1}
+				alignItems="flex-start"
+				sx={{ maxWidth: 400 }}
 			>
-				{zipLoading ? 'Saving...' : 'Save'}
-			</Button>
-			{success && (
-				<Alert severity="success" sx={{ mt: 2 }}>
-					Location updated!
-				</Alert>
-			)}
+				<TextField
+					label="Update ZIP code"
+					variant="outlined"
+					value={settings.zip}
+					onChange={e => handleManualZipChange(e.target.value)}
+					error={!!manualZipError}
+					helperText={manualZipError}
+					inputProps={{ maxLength: 5 }}
+					sx={{ flex: 1, minWidth: 200 }}
+					InputProps={{
+						endAdornment: settings.zip ? (
+							<InputAdornment position="end">
+								<IconButton
+									onClick={handleClearZip}
+									edge="end"
+									size="small"
+									aria-label="clear zip code"
+								>
+									<ClearIcon />
+								</IconButton>
+							</InputAdornment>
+						) : null,
+					}}
+				/>
+				<Button
+					variant="contained"
+					onClick={handleManualZipSave}
+					disabled={
+						zipLoading || !settings.zip || settings.zip.length !== 5
+					}
+					sx={{ mt: 0, height: 56 }} // Match TextField height
+				>
+					{zipLoading ? 'Saving...' : 'Save'}
+				</Button>
+			</Stack>
 		</Box>
 	);
 }
