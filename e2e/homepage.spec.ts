@@ -175,7 +175,9 @@ test.describe('HomePage', () => {
 		// Look for bottom navigation and click the Settings button using aria-label
 		await page.getByRole('button', { name: /settings/i }).click();
 		await expect(page).toHaveURL('/settings');
-		await expect(page.getByText(/settings/i)).toBeVisible();
+		await expect(
+			page.getByRole('heading', { name: /lawn settings/i })
+		).toBeVisible();
 	});
 
 	test('displays current location information', async ({ page }) => {
